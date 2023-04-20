@@ -3,27 +3,28 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
-// func LoginGetHandler() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		session := sessions.Default(c)
-// 		user := session.Get(globals.Userkey)
-// 		if user != nil {
-// 			c.HTML(http.StatusBadRequest, "login.html",
-// 				gin.H{
-// 					"content": "Please logout first",
-// 					"user":    user,
-// 				})
-// 			return
-// 		}
-// 		c.HTML(http.StatusOK, "login.html", gin.H{
-// 			"content": "",
-// 			"user":    user,
-// 		})
-// 	}
-// }
+func LoginGetHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+		user := session.Get("user")
+		if user != nil {
+			c.HTML(http.StatusBadRequest, "login.html",
+				gin.H{
+					"content": "Please logout first",
+					"user":    user,
+				})
+			return
+		}
+		c.HTML(http.StatusOK, "login.html", gin.H{
+			"content": "",
+			"user":    user,
+		})
+	}
+}
 
 // func LoginPostHandler() gin.HandlerFunc {
 // 	return func(c *gin.Context) {

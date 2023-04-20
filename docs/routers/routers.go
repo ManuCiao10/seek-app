@@ -7,7 +7,7 @@ import (
 
 func PublicRoutes(g *gin.RouterGroup) {
 
-	// g.GET("/login", controllers.LoginGetHandler())
+	g.GET("/login", controllers.LoginGetHandler())
 	// g.POST("/login", controllers.LoginPostHandler())
 	// g.GET("/register", controllers.RegisterGetHandler())
 	// g.POST("/register", controllers.RegisterPostHandler())
