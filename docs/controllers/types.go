@@ -1,9 +1,10 @@
 package controllers
 
 type AppConfig struct {
-	AppName string `json:"app_name"`
-	AppPort string `json:"app_port"`
-	AppURL  string `json:"app_url"`
+	AppName   string `json:"app_name"`
+	AppPort   string `json:"app_port"`
+	AppURL    string `json:"app_url"`
+	AppSecret string `json:"app_secret"`
 }
 
 type User struct {

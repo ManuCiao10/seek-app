@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/seek/docs/controllers"
+	"github.com/seek/docs/middleware"
+	routes "github.com/seek/docs/routers"
 )
 
 var (
@@ -31,20 +35,26 @@ func main() {
 	appConfig.AppName = getEnv("APP_NAME", "Seek")
 	appConfig.AppPort = getEnv("APP_PORT", "9000")
 	appConfig.AppURL = getEnv("APP_URL", "http://localhost:9000")
+	appConfig.AppSecret = getEnv("APP_SECRET", "seek")
 
 	router := gin.New()
 	router.Use(gin.Logger())
-	// gin.SetMode(gin.ReleaseMode)
 
-	router.GET("/", controllers.HomePage)
-	// router.GET("/login", controllers.Login)
-	// router.GET("/register", controllers.Register)
-	// router.GET("/logout", controllers.Logout)
-	// router.GET("/profile", controllers.Profile)
-	// router.GET("/profile/edit", controllers.ProfileEdit)
-	// router.GET("/profile/password", controllers.ProfilePassword)
-	// router.GET("/profile/delete", controllers.ProfileDelete)
-	// router.GET("/profile/verify", controllers.ProfileVerify)
+	//load template && static
+	router.LoadHTMLGlob("templates/*")
+	router.Static("/static", "./static")
+
+	//save cookie session
+	router.Use(sessions.Sessions("session", cookie.NewStore([]byte(appConfig.AppSecret))))
+
+	//load routes
+	public := router.Group("/")
+	routes.PublicRoutes(public)
+
+	//load middleware
+	private := router.Group("/")
+	private.Use(middleware.AuthRequired)
+	routes.PrivateRoutes(private)
 
 	router.Run(":" + appConfig.AppPort)
 
