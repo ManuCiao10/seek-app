@@ -26,37 +26,37 @@ func LoginGetHandler() gin.HandlerFunc {
 	}
 }
 
-// func LoginPostHandler() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		session := sessions.Default(c)
-// 		user := session.Get(globals.Userkey)
-// 		if user != nil {
-// 			c.HTML(http.StatusBadRequest, "login.html", gin.H{"content": "Please logout first"})
-// 			return
-// 		}
+func LoginPostHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// session := sessions.Default(c)
+		// // user := session.Get(globals.Userkey)
+		// if user != nil {
+		// 	c.HTML(http.StatusBadRequest, "login.html", gin.H{"content": "Please logout first"})
+		// 	return
+		// }
 
-// 		username := c.PostForm("username")
-// 		password := c.PostForm("password")
+		// username := c.PostForm("username")
+		// password := c.PostForm("password")
 
-// 		if helpers.EmptyUserPass(username, password) {
-// 			c.HTML(http.StatusBadRequest, "login.html", gin.H{"content": "Parameters can't be empty"})
-// 			return
-// 		}
+		// if helpers.EmptyUserPass(username, password) {
+		// 	c.HTML(http.StatusBadRequest, "login.html", gin.H{"content": "Parameters can't be empty"})
+		// 	return
+		// }
 
-// 		if !helpers.CheckUserPass(username, password) {
-// 			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"content": "Incorrect username or password"})
-// 			return
-// 		}
+		// if !helpers.CheckUserPass(username, password) {
+		// 	c.HTML(http.StatusUnauthorized, "login.html", gin.H{"content": "Incorrect username or password"})
+		// 	return
+		// }
 
-// 		session.Set(globals.Userkey, username)
-// 		if err := session.Save(); err != nil {
-// 			c.HTML(http.StatusInternalServerError, "login.html", gin.H{"content": "Failed to save session"})
-// 			return
-// 		}
+		// session.Set(globals.Userkey, username)
+		// if err := session.Save(); err != nil {
+		// 	c.HTML(http.StatusInternalServerError, "login.html", gin.H{"content": "Failed to save session"})
+		// 	return
+		// }
 
-// 		c.Redirect(http.StatusMovedPermanently, "/dashboard")
-// 	}
-// }
+		c.Redirect(http.StatusMovedPermanently, "/dashboard")
+	}
+}
 
 // func LogoutGetHandler() gin.HandlerFunc {
 // 	return func(c *gin.Context) {
@@ -79,22 +79,22 @@ func LoginGetHandler() gin.HandlerFunc {
 
 func IndexGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// session := sessions.Default(c)
-		// user := session.Get(globals.Userkey)
+		session := sessions.Default(c)
+		user := session.Get("user")
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"content": "This is an index page...",
-			"user":    "user",
+			"user":    user,
 		})
 	}
 }
 
-// func DashboardGetHandler() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		session := sessions.Default(c)
-// 		user := session.Get(globals.Userkey)
-// 		c.HTML(http.StatusOK, "dashboard.html", gin.H{
-// 			"content": "This is a dashboard",
-// 			"user":    user,
-// 		})
-// 	}
-// }
+func DashboardGetHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// session := sessions.Default(c)
+		// user := session.Get(globals.Userkey)
+		c.HTML(http.StatusOK, "dashboard.html", gin.H{
+			"content": "This is a dashboard",
+			"user":    "user",
+		})
+	}
+}

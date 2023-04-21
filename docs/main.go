@@ -27,9 +27,9 @@ func getEnv(key, fallback string) string {
 
 func main() {
 	err := godotenv.Load()
+
 	if err != nil {
 		fmt.Println("Error loading .env file")
-		fmt.Println(err)
 	}
 
 	appConfig.AppName = getEnv("APP_NAME", "Seek")

@@ -1,15 +1,105 @@
-// login.html
-{{define "login.html"}}
+// index.html
+{{define "index.html"}}
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- <link rel="stylesheet" type="text/css" href="/assets/bulma.min.css"> -->
-	<title></title>
-</head>
-<body>
-<div class="container">
-<br><br>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title></title>
+	</head>
+	<body>
+		<div class="container">
+			<br><br>
 {{end}}
 
+// login.html
+{{define "login.html"}}
+<div class="mx-auto my-4 mt-6 md:max-w-md md:mt-16"><h1 class="sr-only">Login</h1>
+	<form action="https://localhost:9000/login" method="post" class="form"><input
+			type="hidden" name="_token"
+			value="MJNHFtULXP5sazzvxlke3SERPbkEBvQSdM3rEueD"> <div class="relative
+			floating-labels"><input type="email" name="email"
+				placeholder="mail@example.com" id="email"
+				oninput="checkIfAllInputsEmpty()" required="required" class=""> <label
+				for="email">Email</label> <!----> <!----></div> <div class="relative
+			floating-labels"><input type="password" name="password"
+				placeholder="Password" oninput="LoginForm()" id="password"
+				class=""> <label for="password">Password</label> <!----> <!----></div>
+		<div class="mt-4 mb-16 space-x-4 text-xs font-normal md:mt-2"><a
+				href="https://localhost:9000/forgot-password" class="md:hover-underline">Forgot
+				password</a> <a href="https://localhost:9000/register"
+				class="md:hover-underline">Create Account</a></div> <button type="submit"
+			id="submit" class="block w-full mx-auto text-white btn-squared-filled
+			bg-gray-30 border-gray-30 md:w-72 hover:opacity-80">Login</button></form>
+	<div class="mx-auto md:w-72"><a href="https://localhost:9000/login/facebook"
+			class="btn-squared-filled flex px-4 w-full text-white bg-[#0085FF]
+			border-[#0085FF] hover:text-white hover:bg-[#0085FF]
+			hover:border-[#0085FF] hover:opacity-70"><div class="inline-block "><svg
+					width="1em" height="1em" fill="none" viewBox="0 0 27 27"
+					xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl"> <path
+						fill-rule="evenodd" clip-rule="evenodd" d="M25.313
+						13.571c0-6.523-5.29-11.812-11.813-11.812-6.523 0-11.813 5.289-11.813
+						11.812 0 5.896 4.32 10.783 9.967 11.67v-8.254h-3V13.57h3V10.97c0-2.96
+						1.764-4.596 4.462-4.596 1.293 0 2.645.23 2.645.23v2.908h-1.49c-1.467
+						0-1.926.91-1.926 1.845v2.215h3.276l-.523 3.416h-2.752v8.255c5.648-.887
+						9.966-5.773 9.966-11.67Z" fill="#fff"></path> </svg></div> <span>Continue
+				with Facebook</span></a> <a href="https://localhost:9000/login/google"
+			class="flex w-full px-4 btn-squared btn-white"><div class="inline-block "><svg
+					width="1em" height="1em" viewBox="0 0 27 27"
+					xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl"> <path
+						fill="#4285F4" d="M23.745
+						12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4
+						3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82Z"></path> <path
+						fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08
+						7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13
+						0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24Z"></path>
+					<path fill="#FBBC05" d="M5.525
+						14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86
+						11.86 0 0 0 0 10.76l3.98-3.09Z"></path> <path fill="#EA4335" d="M12.255
+						4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255
+						0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96Z"></path>
+				</svg></div> <span>Continue with Google</span></a> <a
+			href="https://localhost:9000/login/apple" class="flex w-full px-4 text-white
+			bg-black border-black btn-squared hover:bg-black hover:border-black
+			hover:text-white hover:opacity-70"><div class="inline-block "><svg
+					width="1em" height="1em" viewBox="0 0 27 27" fill="none"
+					xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl"> <path
+						fill-rule="evenodd" clip-rule="evenodd" d="M21.488
+						21.555c.664-1.012.911-1.53
+						1.418-2.666-3.735-1.418-4.332-6.739-.642-8.775-1.125-1.418-2.71-2.239-4.207-2.239-1.08
+						0-1.823.281-2.486.54-.563.214-1.07.405-1.7.405-.674
+						0-1.27-.214-1.9-.439-.687-.247-1.407-.506-2.307-.506-1.676 0-3.465
+						1.024-4.6 2.779-1.598 2.475-1.317 7.11 1.26 11.07.922 1.417 2.16 3.003
+						3.768 3.026.675.011 1.114-.191 1.597-.405.552-.247 1.148-.517
+						2.194-.517 1.046-.012 1.631.27 2.183.517.472.214.9.416 1.563.405
+						1.632-.023 2.937-1.777 3.86-3.195ZM17.82 2.25c.18 1.237-.326 2.464-.99
+						3.319-.709.922-1.946 1.642-3.139 1.597-.214-1.192.338-2.419
+						1.013-3.24.753-.9 2.025-1.597 3.116-1.676Z" fill="#fff"></path> </svg></div>
+			<span>Continue with Apple</span></a> <a
+			href="https://localhost:9000/login/discord" class="flex w-full px-4
+			btn-squared btn-white"><div class="inline-block "><svg width="1em"
+					height="1em" viewBox="0 0 27 27" fill="none"
+					xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl"> <path
+						d="M24.469 3.508a2.637 2.637 0 0 0-2.63-2.612L5.148.844a2.618 2.618 0 0
+						0-2.618 2.611v17.217c0 1.44 1.175 2.531 2.618 2.531h14.257l-.685-2.32
+						5.748 5.273V3.508ZM17.12 17.392s-.46-.548-.844-1.018c1.674-.472
+						2.313-1.503 2.313-1.503-.46.305-.952.557-1.469.752a9.143 9.143 0 0
+						1-1.851.548 8.967 8.967 0 0 1-3.308-.013 9.726 9.726 0 0 1-1.877-.549
+						7.457 7.457 0 0
+						1-.932-.433c-.038-.025-.076-.037-.115-.063-.026-.013-.038-.026-.053-.026-.23-.127-.357-.216-.357-.216s.613
+						1.006 2.235 1.49c-.384.484-.856 1.044-.856
+						1.044-2.822-.089-3.895-1.923-3.895-1.923 0-4.063 1.84-7.362 1.84-7.362
+						1.838-1.364 3.575-1.325 3.575-1.325l.127.153c-2.298.65-3.345
+						1.656-3.345 1.656s.28-.153.753-.357c1.366-.599 2.452-.752
+						2.9-.802.072-.015.144-.024.217-.026.856-.111 1.722-.12 2.58-.026
+						1.346.155 2.651.566 3.844 1.21 0
+						0-1.01-.957-3.18-1.605l.178-.204s1.75-.038 3.576 1.327c0 0 1.84 3.3
+						1.84 7.363 0-.015-1.074 1.82-3.896 1.908Z" fill="#000"></path> <path
+						d="M11.181 11.496c-.727 0-1.302.624-1.302 1.401s.587 1.401 1.302
+						1.401c.728 0 1.303-.623
+						1.303-1.4.013-.78-.575-1.402-1.303-1.402ZM15.844 11.496c-.728
+						0-1.303.624-1.303 1.401s.588 1.401 1.303 1.401c.728 0 1.302-.623
+						1.302-1.4 0-.778-.587-1.402-1.302-1.402Z" fill="#000"></path> </svg></div>
+			<span>Continue with Discord</span></a></div></div>
+
+{{end}}
