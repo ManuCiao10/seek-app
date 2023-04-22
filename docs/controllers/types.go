@@ -8,6 +8,7 @@ type AppConfig struct {
 }
 
 type UserPostLogin struct {
+	ID       string `bson:"_id"` // bson tag is used for MongoDB
 	Email    string `form:"email" json:"email" binding:"required"`
 	Password string `form:"password" json:"password" binding:"required"`
 }

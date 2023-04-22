@@ -1,12 +1,17 @@
 package controllers
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/seek/docs/database"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // return login.html page if user not logged in
@@ -47,6 +52,7 @@ func LoginGetHandler() gin.HandlerFunc {
 func LoginPostHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user UserPostLogin
+		var dbUser UserPostLogin
 		var validUser bool
 
 		if err := c.ShouldBind(&user); err != nil {
@@ -54,9 +60,21 @@ func LoginPostHandler() gin.HandlerFunc {
 			return
 		}
 
-		log.Println(user.Email, user.Password)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		collection := database.Client.Database("GODB").Collection("account")
 
-		validUser = true // TODO: check user in database
+		fmt.Print(user.Email)
+		err := collection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&dbUser)
+
+		if err != nil {
+			log.Printf("Error MongoDB: %v", err)
+			validUser = false
+		}
+
+		defer cancel()
+
+		log.Printf("User from DB: %v", dbUser)
+
 		if validUser {
 			log.Println("User is valid")
 
@@ -115,3 +133,5 @@ func IndexGetHandler() gin.HandlerFunc {
 		})
 	}
 }
+
+// Salt and hash the password using the bcrypt algorithm

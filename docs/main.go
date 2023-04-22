@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/gin-contrib/sessions"
@@ -10,13 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/seek/docs/controllers"
+	"github.com/seek/docs/database"
 	"github.com/seek/docs/middleware"
 	routes "github.com/seek/docs/routers"
 )
 
-var (
-	appConfig = controllers.AppConfig{}
-)
+var appConfig = controllers.AppConfig{}
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -38,6 +38,7 @@ func main() {
 	appConfig.AppURL = getEnv("APP_URL", "http://localhost:9000")
 	appConfig.AppSecret = getEnv("APP_SECRET", "seek")
 
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	store, err := redis.NewStore(10, "tcp", "localhost:6379", "", []byte(appConfig.AppSecret))
@@ -59,7 +60,11 @@ func main() {
 	private.Use(middleware.AuthRequired)
 	routes.PrivateRoutes(private)
 
+	database.InitMongoDB()
+
 	router.Run(":" + appConfig.AppPort)
+
+	log.Println("Server started on port " + appConfig.AppPort)
 
 }
 
