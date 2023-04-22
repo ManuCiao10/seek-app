@@ -63,6 +63,9 @@ func main() {
 
 }
 
+//improve control user logged in
+//add design part CSS
+//different index bewtwenn user logged in and not logged in (done)
 //add login discord and google
 //export GIN_MODE=release
 //check how to assign cookies and sessions

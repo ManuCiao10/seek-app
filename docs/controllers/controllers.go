@@ -12,20 +12,34 @@ import (
 // return login.html page if user not logged in
 func LoginGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		user := session.Get("user")
-		if user != nil {
-			c.HTML(http.StatusBadRequest, "login.html",
-				gin.H{
-					"content": "Please logout first",
-					"user":    user,
-				})
+		sessionID, err := c.Cookie("sessionID")
+
+		if err != nil {
+			log.Printf("User is not logged in, redirect to login page")
+
+			c.HTML(http.StatusOK, "login.html", gin.H{
+				"content": "",
+			})
 			return
 		}
-		c.HTML(http.StatusOK, "login.html", gin.H{
-			"content": "",
-			"user":    user,
+
+		session := sessions.Default(c)
+		sessionIDFromStore := session.Get("sessionID")
+		if sessionIDFromStore == nil || sessionIDFromStore.(string) != sessionID {
+			log.Printf("Session ID in cookie does not match session ID in Redis store")
+
+			c.HTML(http.StatusOK, "login.html", gin.H{
+				"content": "",
+			})
+			return
+		}
+
+		log.Printf("User is logged in, redirect to index")
+
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"content": "This is an index page...",
 		})
+
 	}
 }
 
@@ -33,6 +47,7 @@ func LoginGetHandler() gin.HandlerFunc {
 func LoginPostHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user UserPostLogin
+		var validUser bool
 
 		if err := c.ShouldBind(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -40,8 +55,9 @@ func LoginPostHandler() gin.HandlerFunc {
 		}
 
 		log.Println(user.Email, user.Password)
-		// check user in database
-		if user.Email == "dev" && user.Password == "dev" {
+
+		validUser = true // TODO: check user in database
+		if validUser {
 			log.Println("User is valid")
 
 			sessionID := uuid.New().String()
@@ -68,10 +84,32 @@ func LoginPostHandler() gin.HandlerFunc {
 	}
 }
 
-// return index.html page
+// return index.html page (if user not logged in dipaly index.html page [with the login button])
+// if user logged in display index.html page
 func IndexGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// session := sessions.Default(c)
+		// Retrieve session ID from cookie
+		sessionID, err := c.Cookie("sessionID")
+		if err != nil {
+			// User is not logged in, redirect to login page
+			c.HTML(http.StatusOK, "indexNoLogin.html", gin.H{
+				"content": "This is an index page...",
+			})
+			return
+		}
+
+		// Load session data from Redis store
+		session := sessions.Default(c)
+		sessionIDFromStore := session.Get("sessionID")
+		if sessionIDFromStore == nil || sessionIDFromStore.(string) != sessionID {
+			// Session ID in cookie does not match session ID in Redis store
+			c.HTML(http.StatusOK, "indexNoLogin.html", gin.H{
+				"content": "This is an index page...",
+			})
+			return
+		}
+
+		// User is logged in, render main page (without login button)
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"content": "This is an index page...",
 		})

@@ -2,68 +2,220 @@
 {{define "index.html"}}
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title></title>
-	</head>
-	<body>
-		<div class="container">
-			<br><br>
-{{end}}
 
-// login.html
-{{define "login.html"}}
-<div class="mx-auto my-4 mt-6 md:max-w-md md:mt-16"><h1 class="sr-only">Login</h1>
-	<form action="/login" method="post" class="form">
-		<div class="relative
-			floating-labels"><input type="email" name="email"
-				placeholder="mail@example.com" id="email"
-				required="required" class=""> <label
-				for="email">Email</label> <!----> <!----></div> <div class="relative
-			floating-labels"><input type="password" name="password"
-				placeholder="Password" id="password"
-				class=""> <label for="password">Password</label> <!----> <!----></div>
-		<div class="mt-4 mb-16 space-x-4 text-xs font-normal md:mt-2"><a
-				href="https://localhost:9000/forgot-password" class="md:hover-underline">Forgot
-				password</a> <a href="https://localhost:9000/register"
-				class="md:hover-underline">Create Account</a></div> <button type="submit"
-			id="submit" class="block w-full mx-auto text-white btn-squared-filled
-			bg-gray-30 border-gray-30 md:w-72 hover:opacity-80">Login</button></form>
-	<div class="mx-auto md:w-72"><a href="https://localhost:9000/login/facebook"
-			class="btn-squared-filled flex px-4 w-full text-white bg-[#0085FF]
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+</head>
+
+<body>
+	<div class="container">
+		<br><br>
+		{{end}}
+
+		//indexNoLogin.html
+		{{define "indexNoLogin.html"}}
+		<header class="l-header__main">
+			<div class="container u-flexbox u-align-items-center u-fill-height">
+				<div class="l-header__content">
+					<div class="l-header__logo"><a class="u-block" href="/" title="Vinted logo" aria-label="Vinted logo"
+							data-testid="header-logo-id">
+							<div class="u-phones-only">
+								<div class="web_ui__Image__image"><img
+										src="https://static.vinted.com/assets/web-logo/default/symbol.svg"
+										alt="Vinted logo" class="web_ui__Image__content"></div>
+							</div>
+							<div class="u-tablets-up-only u-ui-padding-left-small">
+								<div class="l-header__logo-container">
+									<div class="web_ui__Image__image"><img
+											src="https://static.vinted.com/assets/web-logo/default/logo.svg"
+											alt="Vinted logo" class="web_ui__Image__content"></div>
+								</div>
+							</div>
+						</a></div>
+					<div class="l-header__search">
+						<div>
+							<form method="get" action="/catalog">
+								<div class="u-position-relative">
+									<div class="web_ui__InputBar__input-bar" data-testid="search-text">
+										<div class="web_ui__InputBar__prefix">
+											<div class="u-flexbox u-fill-height">
+												<div class="u-position-relative"><button type="button"
+														aria-expanded="false"
+														class="web_ui__Button__button web_ui__Button__flat web_ui__Button__medium web_ui__Button__muted web_ui__Button__truncated web_ui__Button__icon-right"
+														data-testid="search-bar-search-type"><span
+															class="web_ui__Button__content"><span
+																class="web_ui__Button__label"><span
+																	id="search-item">Catalogue</span></span><span
+																class="web_ui__Button__icon"><span
+																	class="web_ui__Icon__icon web_ui__Icon__small web_ui__Icon__greyscale-level-3"
+																	data-icon-name="dropdown"><svg viewBox="0 0 16 16">
+																		<path d="M8 12L2 6h12z"></path>
+																	</svg></span></span></span></button></div>
+												<div class="web_ui__Divider__divider web_ui__Divider__vertical"></div>
+											</div>
+										</div>
+										<div class="web_ui__InputBar__input">
+											<div class="web_ui__InputBar__icon">
+												<div class="u-flexbox u-align-items-center"><span
+														class="web_ui__Icon__icon web_ui__Icon__small web_ui__Icon__greyscale-level-4"
+														data-icon-name="search-filled"><svg viewBox="0 0 24 24">
+															<path
+																d="M10.5 16a5.5 5.5 0 1 1 .01-11.01 5.5 5.5 0 0 1-.01 11zM22 19.87l-4.53-4.53a8.5 8.5 0 1 0-2.12 2.12L19.88 22 22 19.88z">
+															</path>
+														</svg></span></div>
+											</div><input id="search_text" name="search_text"
+												placeholder="Search for items" data-testid="search-text--input"
+												class="web_ui__InputBar__value" autocomplete="off"
+												aria-labelledby="search-item" value="">
+										</div>
+										<div class="web_ui__InputBar__suffix"></div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="l-header__actions">
+						<div class="user-actions">
+							<div class="user-actions__action"><a role="button" href="/inbox"
+									class="web_ui__Button__button web_ui__Button__flat web_ui__Button__default web_ui__Button__primary web_ui__Button__truncated web_ui__Button__icon-left web_ui__Button__without-text"
+									data-testid="header-notification-button"><span class="web_ui__Button__content"><span
+											class="web_ui__Button__icon"><span
+												class="web_ui__Icon__icon web_ui__Icon__regular web_ui__Icon__greyscale-level-4"
+												data-icon-name="envelope"><svg viewBox="0 0 24 24"
+													aria-label="Messages">
+													<path
+														d="M3.5 18.5V6.54l8.54 6.4 8.45-6.34v11.9H3.5zm15.95-13l-7.41 5.56L4.62 5.5h14.83zM20.5 4H3.5C2.67 4 2 4.67 2 5.5v13c0 .83.67 1.5 1.5 1.5h17c.82 0 1.5-.67 1.5-1.5v-13c0-.83-.68-1.5-1.5-1.5z">
+													</path>
+												</svg></span></span></span></a></div>
+							<div class="user-actions__action">
+								<div><a role="button" href="/member/notifications"
+										class="web_ui__Button__button web_ui__Button__flat web_ui__Button__default web_ui__Button__primary web_ui__Button__truncated web_ui__Button__icon-left web_ui__Button__without-text"
+										data-testid="header-notification-button"><span
+											class="web_ui__Button__content"><span class="web_ui__Button__icon"><span
+													class="web_ui__Icon__icon web_ui__Icon__regular web_ui__Icon__greyscale-level-4"
+													data-icon-name="bell"><svg viewBox="0 0 24 24"
+														aria-label="Notifications">
+														<path
+															d="M4.5 17.5c0-2.08 1.71-3.18 1.77-3.21l.73-.44V9a5.5 5.5 0 0 1 11 0v4l.01.84.7.44a4.01 4.01 0 0 1 1.79 3.22h-16zm8 3a2.5 2.5 0 0 1-2.29-1.5h4.58a2.5 2.5 0 0 1-2.29 1.5zm7-7.5V9a7 7 0 1 0-14 0v4S3 14.5 3 17.5c0 .83.67 1.5 1.5 1.5h4.14a4 4 0 0 0 7.72 0h4.14c.83 0 1.5-.67 1.5-1.5 0-3-2.5-4.5-2.5-4.5z">
+														</path>
+													</svg></span></span></span></a></div>
+							</div>
+							<div class="user-actions__action"><a aria-label="Favourites" role="button"
+									href="/member/items/favourite_list"
+									class="web_ui__Button__button web_ui__Button__flat web_ui__Button__default web_ui__Button__primary web_ui__Button__truncated web_ui__Button__icon-left web_ui__Button__without-text"><span
+										class="web_ui__Button__content"><span class="web_ui__Button__icon"><span
+												class="web_ui__Icon__icon web_ui__Icon__regular web_ui__Icon__greyscale-level-4"
+												data-icon-name="heart"><svg viewBox="0 0 24 24">
+													<path
+														d="M16.66 3C13.98 3 12 5.24 12 5.24S10.02 3 7.34 3a5.1 5.1 0 0 0-2.85.9c-3.65 2.42-3.1 7.53.43 10.93A105.1 105.1 0 0 0 12 21s3.8-2.99 7.09-6.17c3.51-3.4 4.08-8.51.42-10.93a5.1 5.1 0 0 0-2.85-.9m0 1.5c.7 0 1.35.21 2.02.66a3.9 3.9 0 0 1 1.8 2.98c.17 1.87-.74 3.97-2.44 5.61A100.22 100.22 0 0 1 12 19.07a100.22 100.22 0 0 1-6.04-5.32c-1.7-1.64-2.61-3.74-2.44-5.6a3.9 3.9 0 0 1 1.8-3 3.6 3.6 0 0 1 2.02-.65c1.95 0 3.53 1.72 3.54 1.73l1.11 1.25 1.13-1.24c.02-.02 1.59-1.74 3.54-1.74">
+													</path>
+												</svg></span></span></span></a></div>
+						</div>
+						<div class="u-desktops-only u-flexbox u-align-items-center">
+							<div class="u-position-relative u-ui-padding-left-regular u-ui-padding-right-x-large">
+								<div>
+									<div id="user-menu-button" role="button" tabindex="0" class="">
+										<figure class="photo-centered-parent header-avatar u-cursor-pointer">
+											<div class="web_ui__Image__image web_ui__Image__circle"><img
+													src="https://images1.vinted.net/t/03_018b2_wSiwickBgKzxL6kZYFu7FXRX/50x50/1682015171.jpeg?s=b98e2a0a004d82c90c9b18dd1983af9bc0d0cd75"
+													alt="manueleluponejoshy" class="web_ui__Image__content"></div>
+										</figure>
+									</div>
+								</div>
+							</div><a rel="nofollow" role="button" href="/items/new"
+								class="web_ui__Button__button web_ui__Button__filled web_ui__Button__small web_ui__Button__primary web_ui__Button__truncated"><span
+									class="web_ui__Button__content"><span class="web_ui__Button__label">Sell
+										now</span></span></a>
+							<div class="u-ui-padding-left-regular"><a class="u-flexbox u-align-items-center"
+									href="https://www.vinted.es/help/360?access_channel=vinted_guide"><span
+										class="web_ui__Icon__icon web_ui__Icon__regular web_ui__Icon__greyscale-level-4"
+										data-icon-name="question-circle"><svg viewBox="0 0 24 24"
+											aria-label="Go to Help Centre">
+											<path
+												d="M12.75 14.506h-1.5v-1.139c0-1.077.598-2.064 1.522-2.514a1.78 1.78 0 0 0 .927-2.068 1.741 1.741 0 0 0-1.218-1.218 1.766 1.766 0 0 0-1.559.305 1.75 1.75 0 0 0-.685 1.395h-1.5c0-1.017.46-1.958 1.266-2.58a3.285 3.285 0 0 1 2.853-.574 3.244 3.244 0 0 1 2.297 2.297c.398 1.542-.31 3.1-1.723 3.79-.413.202-.68.66-.68 1.167v1.139ZM12 2c5.523 0 10 4.478 10 10 0 5.523-4.477 10-10 10-5.524 0-10-4.477-10-10C2 6.479 6.476 2 12 2Zm0 1.5c-4.687 0-8.5 3.814-8.5 8.5 0 4.687 3.813 8.5 8.5 8.5 4.686 0 8.499-3.813 8.499-8.5 0-4.686-3.813-8.5-8.5-8.5Zm-1.003 13.507a1 1 0 1 1 2.001 0 1 1 0 1 1-2 0Z">
+											</path>
+										</svg></span></a></div>
+							<div class="language-selector">
+								<div>
+									<div class="u-ui-padding-left-small"><button type="button" aria-expanded="false"
+											class="web_ui__Button__button web_ui__Button__flat web_ui__Button__medium web_ui__Button__muted web_ui__Button__inline web_ui__Button__icon-right"><span
+												class="web_ui__Button__content"><span
+													class="web_ui__Button__label">EN</span><span
+													class="web_ui__Button__icon"><span
+														class="web_ui__Icon__icon web_ui__Icon__small web_ui__Icon__greyscale-level-3"
+														data-icon-name="dropdown"><svg viewBox="0 0 16 16">
+															<path d="M8 12L2 6h12z"></path>
+														</svg></span></span></span></button></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="l-header__toggle"><button type="button" aria-label="Menu opened"
+							class="web_ui__Button__button web_ui__Button__flat web_ui__Button__default web_ui__Button__primary web_ui__Button__truncated web_ui__Button__icon-left web_ui__Button__without-text"><span
+								class="web_ui__Button__content"><span class="web_ui__Button__icon"><span
+										class="web_ui__Icon__icon web_ui__Icon__regular web_ui__Icon__greyscale-level-3"
+										data-icon-name="menu"><svg viewBox="0 0 24 24">
+											<path d="M2 20h20v-1.5H2V20zM2 5.5h20V4H2v1.5zm0 7.25h20v-1.5H2v1.5z">
+											</path>
+										</svg></span></span></span></button></div>
+				</div>
+			</div>
+		</header>
+		{{end}}
+		// login.html
+		{{define "login.html"}}
+		<div class="mx-auto my-4 mt-6 md:max-w-md md:mt-16">
+			<h1 class="sr-only">Login</h1>
+			<form action="/login" method="post" class="form">
+				<div class="relative
+			floating-labels"><input type="email" name="email" placeholder="mail@example.com" id="email" required="required"
+						class=""> <label for="email">Email</label> <!----> <!----></div>
+				<div class="relative
+			floating-labels"><input type="password" name="password" placeholder="Password" id="password" class=""> <label
+						for="password">Password</label> <!----> <!----></div>
+				<div class="mt-4 mb-16 space-x-4 text-xs font-normal md:mt-2"><a
+						href="https://localhost:9000/forgot-password" class="md:hover-underline">Forgot
+						password</a> <a href="https://localhost:9000/register" class="md:hover-underline">Create
+						Account</a></div> <button type="submit" id="submit" class="block w-full mx-auto text-white btn-squared-filled
+			bg-gray-30 border-gray-30 md:w-72 hover:opacity-80">Login</button>
+			</form>
+			<div class="mx-auto md:w-72"><a href="https://localhost:9000/login/facebook" class="btn-squared-filled flex px-4 w-full text-white bg-[#0085FF]
 			border-[#0085FF] hover:text-white hover:bg-[#0085FF]
-			hover:border-[#0085FF] hover:opacity-70"><div class="inline-block "><svg
-					width="1em" height="1em" fill="none" viewBox="0 0 27 27"
-					xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl"> <path
-						fill-rule="evenodd" clip-rule="evenodd" d="M25.313
+			hover:border-[#0085FF] hover:opacity-70">
+					<div class="inline-block "><svg width="1em" height="1em" fill="none" viewBox="0 0 27 27"
+							xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl">
+							<path fill-rule="evenodd" clip-rule="evenodd" d="M25.313
 						13.571c0-6.523-5.29-11.812-11.813-11.812-6.523 0-11.813 5.289-11.813
 						11.812 0 5.896 4.32 10.783 9.967 11.67v-8.254h-3V13.57h3V10.97c0-2.96
 						1.764-4.596 4.462-4.596 1.293 0 2.645.23 2.645.23v2.908h-1.49c-1.467
 						0-1.926.91-1.926 1.845v2.215h3.276l-.523 3.416h-2.752v8.255c5.648-.887
-						9.966-5.773 9.966-11.67Z" fill="#fff"></path> </svg></div> <span>Continue
-				with Facebook</span></a> <a href="https://localhost:9000/login/google"
-			class="flex w-full px-4 btn-squared btn-white"><div class="inline-block "><svg
-					width="1em" height="1em" viewBox="0 0 27 27"
-					xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl"> <path
-						fill="#4285F4" d="M23.745
+						9.966-5.773 9.966-11.67Z" fill="#fff"></path>
+						</svg></div> <span>Continue
+						with Facebook</span>
+				</a> <a href="https://localhost:9000/login/google" class="flex w-full px-4 btn-squared btn-white">
+					<div class="inline-block "><svg width="1em" height="1em" viewBox="0 0 27 27"
+							xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl">
+							<path fill="#4285F4" d="M23.745
 						12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4
-						3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82Z"></path> <path
-						fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08
+						3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82Z"></path>
+							<path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08
 						7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13
 						0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24Z"></path>
-					<path fill="#FBBC05" d="M5.525
+							<path fill="#FBBC05" d="M5.525
 						14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86
-						11.86 0 0 0 0 10.76l3.98-3.09Z"></path> <path fill="#EA4335" d="M12.255
+						11.86 0 0 0 0 10.76l3.98-3.09Z"></path>
+							<path fill="#EA4335" d="M12.255
 						4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255
 						0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96Z"></path>
-				</svg></div> <span>Continue with Google</span></a> <a
-			href="https://localhost:9000/login/apple" class="flex w-full px-4 text-white
+						</svg></div> <span>Continue with Google</span>
+				</a> <a href="https://localhost:9000/login/apple" class="flex w-full px-4 text-white
 			bg-black border-black btn-squared hover:bg-black hover:border-black
-			hover:text-white hover:opacity-70"><div class="inline-block "><svg
-					width="1em" height="1em" viewBox="0 0 27 27" fill="none"
-					xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl"> <path
-						fill-rule="evenodd" clip-rule="evenodd" d="M21.488
+			hover:text-white hover:opacity-70">
+					<div class="inline-block "><svg width="1em" height="1em" viewBox="0 0 27 27" fill="none"
+							xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl">
+							<path fill-rule="evenodd" clip-rule="evenodd" d="M21.488
 						21.555c.664-1.012.911-1.53
 						1.418-2.666-3.735-1.418-4.332-6.739-.642-8.775-1.125-1.418-2.71-2.239-4.207-2.239-1.08
 						0-1.823.281-2.486.54-.563.214-1.07.405-1.7.405-.674
@@ -73,13 +225,14 @@
 						2.194-.517 1.046-.012 1.631.27 2.183.517.472.214.9.416 1.563.405
 						1.632-.023 2.937-1.777 3.86-3.195ZM17.82 2.25c.18 1.237-.326 2.464-.99
 						3.319-.709.922-1.946 1.642-3.139 1.597-.214-1.192.338-2.419
-						1.013-3.24.753-.9 2.025-1.597 3.116-1.676Z" fill="#fff"></path> </svg></div>
-			<span>Continue with Apple</span></a> <a
-			href="https://localhost:9000/login/discord" class="flex w-full px-4
-			btn-squared btn-white"><div class="inline-block "><svg width="1em"
-					height="1em" viewBox="0 0 27 27" fill="none"
-					xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl"> <path
-						d="M24.469 3.508a2.637 2.637 0 0 0-2.63-2.612L5.148.844a2.618 2.618 0 0
+						1.013-3.24.753-.9 2.025-1.597 3.116-1.676Z" fill="#fff"></path>
+						</svg></div>
+					<span>Continue with Apple</span>
+				</a> <a href="https://localhost:9000/login/discord" class="flex w-full px-4
+			btn-squared btn-white">
+					<div class="inline-block "><svg width="1em" height="1em" viewBox="0 0 27 27" fill="none"
+							xmlns="http://www.w3.org/2000/svg" class="mr-4 text-2xl">
+							<path d="M24.469 3.508a2.637 2.637 0 0 0-2.63-2.612L5.148.844a2.618 2.618 0 0
 						0-2.618 2.611v17.217c0 1.44 1.175 2.531 2.618 2.531h14.257l-.685-2.32
 						5.748 5.273V3.508ZM17.12 17.392s-.46-.548-.844-1.018c1.674-.472
 						2.313-1.503 2.313-1.503-.46.305-.952.557-1.469.752a9.143 9.143 0 0
@@ -93,12 +246,15 @@
 						2.9-.802.072-.015.144-.024.217-.026.856-.111 1.722-.12 2.58-.026
 						1.346.155 2.651.566 3.844 1.21 0
 						0-1.01-.957-3.18-1.605l.178-.204s1.75-.038 3.576 1.327c0 0 1.84 3.3
-						1.84 7.363 0-.015-1.074 1.82-3.896 1.908Z" fill="#000"></path> <path
-						d="M11.181 11.496c-.727 0-1.302.624-1.302 1.401s.587 1.401 1.302
+						1.84 7.363 0-.015-1.074 1.82-3.896 1.908Z" fill="#000"></path>
+							<path d="M11.181 11.496c-.727 0-1.302.624-1.302 1.401s.587 1.401 1.302
 						1.401c.728 0 1.303-.623
 						1.303-1.4.013-.78-.575-1.402-1.303-1.402ZM15.844 11.496c-.728
 						0-1.303.624-1.303 1.401s.588 1.401 1.303 1.401c.728 0 1.302-.623
-						1.302-1.4 0-.778-.587-1.402-1.302-1.402Z" fill="#000"></path> </svg></div>
-			<span>Continue with Discord</span></a></div></div>
+						1.302-1.4 0-.778-.587-1.402-1.302-1.402Z" fill="#000"></path>
+						</svg></div>
+					<span>Continue with Discord</span>
+				</a></div>
+		</div>
 
-{{end}}
+		{{end}}
