@@ -15,15 +15,14 @@
 // login.html
 {{define "login.html"}}
 <div class="mx-auto my-4 mt-6 md:max-w-md md:mt-16"><h1 class="sr-only">Login</h1>
-	<form action="https://localhost:9000/login" method="post" class="form"><input
-			type="hidden" name="_token"
-			value="MJNHFtULXP5sazzvxlke3SERPbkEBvQSdM3rEueD"> <div class="relative
+	<form action="/login" method="post" class="form">
+		<div class="relative
 			floating-labels"><input type="email" name="email"
 				placeholder="mail@example.com" id="email"
-				oninput="checkIfAllInputsEmpty()" required="required" class=""> <label
+				required="required" class=""> <label
 				for="email">Email</label> <!----> <!----></div> <div class="relative
 			floating-labels"><input type="password" name="password"
-				placeholder="Password" oninput="LoginForm()" id="password"
+				placeholder="Password" id="password"
 				class=""> <label for="password">Password</label> <!----> <!----></div>
 		<div class="mt-4 mb-16 space-x-4 text-xs font-normal md:mt-2"><a
 				href="https://localhost:9000/forgot-password" class="md:hover-underline">Forgot

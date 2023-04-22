@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/seek/docs/controllers"
@@ -37,21 +38,23 @@ func main() {
 	appConfig.AppURL = getEnv("APP_URL", "http://localhost:9000")
 	appConfig.AppSecret = getEnv("APP_SECRET", "seek")
 
-	router := gin.New()
-	router.Use(gin.Logger())
+	router := gin.Default()
 
-	//load template && static
+	store, err := redis.NewStore(10, "tcp", "localhost:6379", "", []byte(appConfig.AppSecret))
+	if err != nil {
+		panic(err)
+	}
+
+	router.Use(sessions.Sessions("session", store))
+
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/static", "./static")
 
-	//save cookie session
 	router.Use(sessions.Sessions("session", cookie.NewStore([]byte(appConfig.AppSecret))))
 
-	//load routes
 	public := router.Group("/")
 	routes.PublicRoutes(public)
 
-	//load middleware
 	private := router.Group("/")
 	private.Use(middleware.AuthRequired)
 	routes.PrivateRoutes(private)
@@ -61,5 +64,5 @@ func main() {
 }
 
 //add login discord and google
-//add logTail for log
 //export GIN_MODE=release
+//check how to assign cookies and sessions

@@ -1,12 +1,15 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
+// return login.html page if user not logged in
 func LoginGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
@@ -26,75 +29,51 @@ func LoginGetHandler() gin.HandlerFunc {
 	}
 }
 
+// Post request to login user and save session
 func LoginPostHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// session := sessions.Default(c)
-		// // user := session.Get(globals.Userkey)
-		// if user != nil {
-		// 	c.HTML(http.StatusBadRequest, "login.html", gin.H{"content": "Please logout first"})
-		// 	return
-		// }
+		var user UserPostLogin
 
-		// username := c.PostForm("username")
-		// password := c.PostForm("password")
+		if err := c.ShouldBind(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-		// if helpers.EmptyUserPass(username, password) {
-		// 	c.HTML(http.StatusBadRequest, "login.html", gin.H{"content": "Parameters can't be empty"})
-		// 	return
-		// }
+		log.Println(user.Email, user.Password)
+		// check user in database
+		if user.Email == "dev" && user.Password == "dev" {
+			log.Println("User is valid")
 
-		// if !helpers.CheckUserPass(username, password) {
-		// 	c.HTML(http.StatusUnauthorized, "login.html", gin.H{"content": "Incorrect username or password"})
-		// 	return
-		// }
+			sessionID := uuid.New().String()
 
-		// session.Set(globals.Userkey, username)
-		// if err := session.Save(); err != nil {
-		// 	c.HTML(http.StatusInternalServerError, "login.html", gin.H{"content": "Failed to save session"})
-		// 	return
-		// }
+			// Store session ID in Redis store
+			session := sessions.Default(c)
+			session.Set("sessionID", sessionID)
+			session.Save()
 
-		c.Redirect(http.StatusMovedPermanently, "/dashboard")
+			// Set session ID as a cookie
+			c.SetCookie("sessionID", sessionID, 3600, "/", "", false, true)
+
+			c.Redirect(http.StatusFound, "/")
+		} else {
+			log.Println("User is invalid")
+			c.HTML(http.StatusBadRequest, "login.html",
+				gin.H{
+					"content": "Invalid email or password",
+					"user":    user,
+				})
+
+		}
+
 	}
 }
 
-// func LogoutGetHandler() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		session := sessions.Default(c)
-// 		user := session.Get(globals.Userkey)
-// 		log.Println("logging out user:", user)
-// 		if user == nil {
-// 			log.Println("Invalid session token")
-// 			return
-// 		}
-// 		session.Delete(globals.Userkey)
-// 		if err := session.Save(); err != nil {
-// 			log.Println("Failed to save session:", err)
-// 			return
-// 		}
-
-// 		c.Redirect(http.StatusMovedPermanently, "/")
-// 	}
-// }
-
+// return index.html page
 func IndexGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		user := session.Get("user")
+		// session := sessions.Default(c)
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"content": "This is an index page...",
-			"user":    user,
-		})
-	}
-}
-
-func DashboardGetHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// session := sessions.Default(c)
-		// user := session.Get(globals.Userkey)
-		c.HTML(http.StatusOK, "dashboard.html", gin.H{
-			"content": "This is a dashboard",
-			"user":    "user",
 		})
 	}
 }
