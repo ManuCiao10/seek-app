@@ -144,4 +144,4 @@ func IndexGetHandler() gin.HandlerFunc {
 	}
 }
 
-// Salt and hash the password using the bcrypt algorithm
+// TODO: sign up user with the salted password
