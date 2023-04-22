@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/seek/docs/controllers"
@@ -36,17 +35,10 @@ func main() {
 	appConfig.AppName = getEnv("APP_NAME", "Seek")
 	appConfig.AppPort = getEnv("APP_PORT", "9000")
 	appConfig.AppURL = getEnv("APP_URL", "http://localhost:9000")
-	appConfig.AppSecret = getEnv("APP_SECRET", "seek")
+
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
-
-	store, err := redis.NewStore(10, "tcp", "localhost:6379", "", []byte(appConfig.AppSecret))
-	if err != nil {
-		panic(err)
-	}
-
-	router.Use(sessions.Sessions("session", store))
 
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/static", "./static")
