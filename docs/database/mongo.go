@@ -26,4 +26,11 @@ func InitMongoDB() {
 
 	log.Println("Connected to MongoDB!")
 
+	err = Client.Ping(context.TODO(), nil)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Println("Ping to MongoDB!")
+
 }

@@ -5,20 +5,17 @@ import (
 	"github.com/seek/docs/controllers"
 )
 
+// Display all routes
 func PublicRoutes(g *gin.RouterGroup) {
 
 	g.GET("/", controllers.IndexGetHandler())
 	g.GET("/login", controllers.LoginGetHandler())
 	g.POST("/login", controllers.LoginPostHandler())
+	g.GET("/signup", controllers.SignupGetHandler())
+	g.POST("/signup", controllers.SignupPostHandler())
 
 	// g.GET("/login/google", auth.HandleGoogleLogin())
 	// g.GET("/login/callback-google", controllers.LoginGetHandler())
-
-	// g.GET("/register", controllers.RegisterGetHandler())
-	// g.POST("/register", controllers.RegisterPostHandler())
-	// g.GET("/member/:id", controllers.MemberGetHandler())
-	// GET /products – to list several products
-	// GET /products/:productId – to get details of one product
 
 }
 
@@ -33,5 +30,7 @@ func PrivateRoutes(g *gin.RouterGroup) {
 	// POST /products – to add a new product
 	// PUT /products/:productId – to update a product
 	// DELETE /products/:productId – to delete a product
+
+	// g.GET("/logout", controllers.LogoutGetHandler())
 
 }

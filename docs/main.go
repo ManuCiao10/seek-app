@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/seek/docs/controllers"
@@ -29,21 +26,16 @@ func main() {
 	err := godotenv.Load()
 
 	if err != nil {
-		fmt.Println("Error loading .env file")
+		log.Fatal("Error loading .env file")
 	}
 
-	appConfig.AppName = getEnv("APP_NAME", "Seek")
 	appConfig.AppPort = getEnv("APP_PORT", "9000")
-	appConfig.AppURL = getEnv("APP_URL", "http://localhost:9000")
-
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/static", "./static")
-
-	router.Use(sessions.Sessions("session", cookie.NewStore([]byte(appConfig.AppSecret))))
 
 	public := router.Group("/")
 	routes.PublicRoutes(public)
@@ -54,15 +46,15 @@ func main() {
 
 	database.InitMongoDB()
 
-	router.Run(":" + appConfig.AppPort)
+	log.Fatal(router.Run(":" + appConfig.AppPort))
 
 	log.Println("Server started on port " + appConfig.AppPort)
 
 }
 
-//improve control user logged in
+//session id store in database
 //add design part CSS
-//different index bewtwenn user logged in and not logged in (done)
 //add login discord and google
-//export GIN_MODE=release
-//check how to assign cookies and sessions
+
+//#########URLS##########
+//https://www.youtube.com/watch?v=7hOfR6wHMaw

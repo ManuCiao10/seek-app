@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/seek/docs/database"
@@ -15,9 +14,9 @@ import (
 )
 
 var (
-	user      UserPostLogin // user from login form
-	dbUser    UserPostLogin // user from database
-	validUser = true        // check if user is valid
+	user   UserPostLogin  // user from login form
+	dbUser UserPostLogin  // user from database
+	snUser UserPostSignup // user from signup form
 )
 
 // return login.html page if user not logged in
@@ -34,18 +33,10 @@ func LoginGetHandler() gin.HandlerFunc {
 			return
 		}
 
-		session := sessions.Default(c)
-		sessionIDFromStore := session.Get("sessionID")
-		if sessionIDFromStore == nil || sessionIDFromStore.(string) != sessionID {
-			log.Printf("Session ID in cookie does not match session ID in Redis store")
-
-			c.HTML(http.StatusOK, "login.html", gin.H{
-				"content": "",
-			})
-			return
-		}
+		// to fix (check if sessionID is in MongoDB store)
 
 		log.Printf("User is logged in, redirect to index")
+		log.Printf("SessionID: %v", sessionID)
 
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"content": "This is an index page...",
@@ -95,53 +86,129 @@ func LoginPostHandler() gin.HandlerFunc {
 			return
 		}
 
-		log.Println("User is valid")
+		log.Println("User is valid:")
+		log.Println("Storing session ID in database...")
 
 		sessionID := uuid.New().String()
 
-		// Store session ID in Redis store
-		session := sessions.Default(c)
-		session.Set("sessionID", sessionID)
-		session.Save()
+		// Store session ID in MongoDB
+
+		// _, err = collection.UpdateOne(
+		// 	ctx, bson.M{"email": user.Email},
+		// 	bson.M{"$set": bson.M{"sessionID": sessionID}},
+		// )
+
+		// if err != nil {
+		// 	log.Printf("Error updating session ID: %v", err)
+		// 	c.HTML(http.StatusBadRequest, "login.html",
+		// 		gin.H{
+		// 			"content": "Error updating session ID",
+		// 			"user":    user,
+		// 		})
+		// 	return
+		// }
 
 		// Set session ID as a cookie
 		c.SetCookie("sessionID", sessionID, 3600, "/", "", false, true)
+
+		log.Printf("Session ID: %v", sessionID)
 
 		c.Redirect(http.StatusFound, "/")
 
 	}
 }
 
-// return index.html page (if user not logged in dipaly index.html page [with the login button])
-// if user logged in display index.html page
+// diaply the index.html:
+// user logged in ==> display index.html with [sign up/log in button] + [sell now button]
+// user not logged in ==> display index.html with [profile picture] + [sell now button] + [messages]
+
 func IndexGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Retrieve session ID from cookie
+
+		log.Printf("IndexGetHandler: %v", c.Request.URL.Path)
+
+		// check if the user is logged in by searching the sessionID in the cookie
 		sessionID, err := c.Cookie("sessionID")
+
 		if err != nil {
-			// User is not logged in, redirect to login page
-			c.HTML(http.StatusOK, "indexNoLogin.html", gin.H{
-				"content": "This is an index page...",
+			log.Printf("User is not logged in, redirect to login page")
+			log.Printf("Session ID: %v", sessionID)
+
+			c.HTML(http.StatusOK, "index.html", gin.H{
+				"content": "",
 			})
 			return
 		}
 
-		// Load session data from Redis store
-		session := sessions.Default(c)
-		sessionIDFromStore := session.Get("sessionID")
-		if sessionIDFromStore == nil || sessionIDFromStore.(string) != sessionID {
-			// Session ID in cookie does not match session ID in Redis store
-			c.HTML(http.StatusOK, "indexNoLogin.html", gin.H{
-				"content": "This is an index page...",
-			})
-			return
-		}
+		// check if the sessionID in the cookie matches the sessionID in the database MongoDB
 
-		// User is logged in, render main page (without login button)
+		// session := sessions.Default(c)
+		// sessionIDFromStore := session.Get("sessionID")
+		// if sessionIDFromStore == nil {
+		// 	log.Printf("Session ID in cookie does not match session ID in Redis store")
+
+		// 	c.HTML(http.StatusOK, "login.html", gin.H{
+		// 		"content": "",
+		// 	})
+		// 	return
+		// }
+
+		log.Printf("User is logged in, redirect to index")
+		log.Printf("Session ID: %v", sessionID)
+
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"content": "This is an index page...",
 		})
+
 	}
 }
 
-// TODO: sign up user with the salted password
+// Sign up user with the salted password
+// if user already exists return error
+func SignupPostHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if err := c.ShouldBind(&snUser); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(snUser.Password), 8)
+		if err != nil {
+			log.Printf("Error: %v", err)
+		}
+
+		// fmt.Fprintln(c.Writer, string(hashedPassword))
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		collection := database.Client.Database("GODB").Collection("account")
+
+		err = collection.FindOne(ctx, bson.M{"email": snUser.Email}).Decode(&dbUser)
+
+		defer cancel()
+
+		if err == nil {
+			c.HTML(http.StatusBadRequest, "login.html",
+				gin.H{
+					"content": "User already exists",
+					"user":    user,
+				})
+			return
+		}
+
+		_, err = collection.InsertOne(ctx, bson.M{"email": snUser.Email, "password": string(hashedPassword)})
+		if err != nil {
+			log.Printf("Error: %v", err)
+		}
+
+		c.Redirect(http.StatusFound, "/login")
+
+	}
+}
+
+func SignupGetHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.HTML(http.StatusOK, "signup.html", gin.H{
+			"content": "",
+		})
+	}
+}
