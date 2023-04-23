@@ -163,10 +163,12 @@ func IndexGetHandler() gin.HandlerFunc {
 	}
 }
 
-// Sign up user with the salted password
-// if user already exists return error
+// Sign up user with the salted password and save user in MongoDB database, then redirect to login page
+// If user already exists, return login.html page
 func SignupPostHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log.Printf("SignupPostHandler: %v", c.Request.URL.Path)
+
 		if err := c.ShouldBind(&snUser); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -177,8 +179,6 @@ func SignupPostHandler() gin.HandlerFunc {
 			log.Printf("Error: %v", err)
 		}
 
-		// fmt.Fprintln(c.Writer, string(hashedPassword))
-
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		collection := database.Client.Database("GODB").Collection("account")
 
@@ -187,6 +187,8 @@ func SignupPostHandler() gin.HandlerFunc {
 		defer cancel()
 
 		if err == nil {
+			log.Printf("User already exists: %v", err)
+
 			c.HTML(http.StatusBadRequest, "login.html",
 				gin.H{
 					"content": "User already exists",
@@ -195,10 +197,11 @@ func SignupPostHandler() gin.HandlerFunc {
 			return
 		}
 
-		_, err = collection.InsertOne(ctx, bson.M{"email": snUser.Email, "password": string(hashedPassword)})
+		_, err = collection.InsertOne(ctx, bson.M{"email": snUser.Email, "password": string(hashedPassword), "fullname": snUser.Fullname, "username": snUser.Username})
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
+		log.Printf("User created: %v", snUser.Email)
 
 		c.Redirect(http.StatusFound, "/login")
 
