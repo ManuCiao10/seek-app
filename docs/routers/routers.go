@@ -17,6 +17,12 @@ func PublicRoutes(g *gin.RouterGroup) {
 	// g.GET("/login/google", auth.HandleGoogleLogin())
 	// g.GET("/login/callback-google", controllers.LoginGetHandler())
 
+	// g.GET("/login/discord", auth.HandleDiscordLogin())
+	// g.GET("/login/callback-discord", controllers.LoginGetHandler())
+
+	// g.GET("/login/apple", controllers.LoginGetHandler())
+	// g.GET("/login/callback-apple", controllers.LoginGetHandler())
+
 }
 
 // Diplay only if user is logged in (middleware)

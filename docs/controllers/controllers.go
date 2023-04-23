@@ -22,6 +22,7 @@ var (
 // return login.html page if user not logged in
 func LoginGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log.Printf("LoginGetHandler: %v", c.Request.URL.Path)
 		sessionID, err := c.Cookie("sessionID")
 
 		if err != nil {
@@ -45,9 +46,12 @@ func LoginGetHandler() gin.HandlerFunc {
 	}
 }
 
-// Post request to login user and save session
+// Post request to login user and store session ID in MongoDB
+// if user is valid (email and password)
+// else return login.html page with error message
 func LoginPostHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log.Printf("LoginPostHandler: %v", c.Request.URL.Path)
 
 		if err := c.ShouldBind(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -63,6 +67,7 @@ func LoginPostHandler() gin.HandlerFunc {
 
 		if err != nil {
 			log.Printf("Error Email: %v", err)
+
 			c.HTML(http.StatusBadRequest, "login.html",
 				gin.H{
 					"content": "Invalid email ",
@@ -89,30 +94,29 @@ func LoginPostHandler() gin.HandlerFunc {
 		log.Println("User is valid:")
 		log.Println("Storing session ID in database...")
 
-		sessionID := uuid.New().String()
+		sessionID := uuid.NewString()
+		expiresAt := time.Now().Add(15 * 24 * time.Hour)
 
-		// Store session ID in MongoDB
+		_, err = collection.UpdateOne(
+			ctx, bson.M{"email": user.Email},
+			bson.M{"$set": bson.M{"sessionID": sessionID}},
+		)
 
-		// _, err = collection.UpdateOne(
-		// 	ctx, bson.M{"email": user.Email},
-		// 	bson.M{"$set": bson.M{"sessionID": sessionID}},
-		// )
+		if err != nil {
+			log.Printf("Error updating session ID: %v", err)
 
-		// if err != nil {
-		// 	log.Printf("Error updating session ID: %v", err)
-		// 	c.HTML(http.StatusBadRequest, "login.html",
-		// 		gin.H{
-		// 			"content": "Error updating session ID",
-		// 			"user":    user,
-		// 		})
-		// 	return
-		// }
+			c.HTML(http.StatusBadRequest, "login.html",
+				gin.H{
+					"content": "Error updating session ID",
+					"user":    user,
+				})
+			return
+		}
 
 		// Set session ID as a cookie
-		c.SetCookie("sessionID", sessionID, 3600, "/", "", false, true)
+		c.SetCookie("sessionID", sessionID, int(expiresAt.Unix()), "/", "", false, true)
 
-		log.Printf("Session ID: %v", sessionID)
-
+		log.Printf("Session ID: %v %v", sessionID, expiresAt)
 		c.Redirect(http.StatusFound, "/")
 
 	}
@@ -124,7 +128,6 @@ func LoginPostHandler() gin.HandlerFunc {
 
 func IndexGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		log.Printf("IndexGetHandler: %v", c.Request.URL.Path)
 
 		// check if the user is logged in by searching the sessionID in the cookie
@@ -208,8 +211,11 @@ func SignupPostHandler() gin.HandlerFunc {
 	}
 }
 
+// Display the signup.html page
 func SignupGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log.Printf("SignupGetHandler: %v", c.Request.URL.Path)
+
 		c.HTML(http.StatusOK, "signup.html", gin.H{
 			"content": "",
 		})
