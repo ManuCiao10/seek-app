@@ -14,9 +14,10 @@ import (
 )
 
 var (
-	user   UserPostLogin  // user from login form
-	dbUser UserPostLogin  // user from database
-	snUser UserPostSignup // user from signup form
+	user     UserPostLogin  // user from login form
+	dbUser   UserPostLogin  // user from database
+	snUser   UserPostSignup // user from signup form
+	AuthUser UserPostSignup // user from database AuthRequired middleware
 )
 
 // return login.html page if user not logged in
@@ -46,8 +47,8 @@ func LoginGetHandler() gin.HandlerFunc {
 	}
 }
 
-// Post request to login user and store session ID in MongoDB
-// if user is valid (email and password)
+// Post request to login user:
+// if user is valid (email and password) => store session ID in MongoDB and as a cookie
 // else return login.html page with error message
 func LoginPostHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -99,7 +100,7 @@ func LoginPostHandler() gin.HandlerFunc {
 
 		_, err = collection.UpdateOne(
 			ctx, bson.M{"email": user.Email},
-			bson.M{"$set": bson.M{"sessionID": sessionID}},
+			bson.M{"$set": bson.M{"sessionID": sessionID, "expiresAt": expiresAt}},
 		)
 
 		if err != nil {
@@ -113,7 +114,6 @@ func LoginPostHandler() gin.HandlerFunc {
 			return
 		}
 
-		// Set session ID as a cookie
 		c.SetCookie("sessionID", sessionID, int(expiresAt.Unix()), "/", "", false, true)
 
 		log.Printf("Session ID: %v %v", sessionID, expiresAt)
@@ -122,7 +122,8 @@ func LoginPostHandler() gin.HandlerFunc {
 	}
 }
 
-// diaply the index.html:
+// display the index.html page
+// determine if the user is logged in or not by searching the sessionID in the cookie and the database MongoDB
 // user logged in ==> display index.html with [sign up/log in button] + [sell now button]
 // user not logged in ==> display index.html with [profile picture] + [sell now button] + [messages]
 
@@ -130,12 +131,10 @@ func IndexGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Printf("IndexGetHandler: %v", c.Request.URL.Path)
 
-		// check if the user is logged in by searching the sessionID in the cookie
 		sessionID, err := c.Cookie("sessionID")
 
-		if err != nil {
-			log.Printf("User is not logged in, redirect to login page")
-			log.Printf("Session ID: %v", sessionID)
+		if len(sessionID) == 0 {
+			log.Printf("User Token header is missing, redirect to index page with [sign up/log in button] + [sell now button]")
 
 			c.HTML(http.StatusOK, "index.html", gin.H{
 				"content": "",
@@ -143,18 +142,47 @@ func IndexGetHandler() gin.HandlerFunc {
 			return
 		}
 
-		// check if the sessionID in the cookie matches the sessionID in the database MongoDB
+		if err != nil {
+			log.Printf("User is not logged in, redirect to index page with [sign up/log in button] + [sell now button]")
 
-		// session := sessions.Default(c)
-		// sessionIDFromStore := session.Get("sessionID")
-		// if sessionIDFromStore == nil {
-		// 	log.Printf("Session ID in cookie does not match session ID in Redis store")
+			c.HTML(http.StatusOK, "index.html", gin.H{
+				"content": "",
+			})
+			return
+		}
 
-		// 	c.HTML(http.StatusOK, "login.html", gin.H{
-		// 		"content": "",
-		// 	})
-		// 	return
-		// }
+		log.Printf("Found session ID in cookie %v", sessionID)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		collection := database.Client.Database("GODB").Collection("account")
+
+		log.Printf("Checking if session ID is in database...")
+
+		err = collection.FindOne(ctx, bson.M{"sessionID": sessionID}).Decode(&snUser)
+
+		defer cancel()
+
+		if err != nil {
+			log.Printf("Session ID not found in database: %v", err)
+
+			c.HTML(http.StatusBadRequest, "index.html",
+				gin.H{
+					"content": "Unauthorized error: session ID not found in database",
+				})
+			return
+		}
+
+		log.Printf("Checking if session ID is expired...")
+
+		if time.Now().After(snUser.ExpiresAt) {
+			log.Printf("Session ID is expired")
+
+			c.HTML(http.StatusBadRequest, "index.html",
+				gin.H{
+					"content": "Unauthorized error: session ID is expired",
+				})
+			return
+		}
 
 		log.Printf("User is logged in, redirect to index")
 		log.Printf("Session ID: %v", sessionID)

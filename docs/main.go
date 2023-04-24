@@ -52,9 +52,9 @@ func main() {
 
 }
 
-//session id store in database
 //add design part CSS
 //add login discord and google
+//TODO create 2 distingushed index.html (one for the user not logged in and one for the user logged in)
 
 //#########URLS##########
 //https://www.youtube.com/watch?v=7hOfR6wHMaw
