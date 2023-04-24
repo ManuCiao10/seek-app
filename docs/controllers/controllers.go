@@ -55,7 +55,13 @@ func LoginPostHandler() gin.HandlerFunc {
 		log.Printf("LoginPostHandler: %v", c.Request.URL.Path)
 
 		if err := c.ShouldBind(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			log.Printf("Error: %v", err)
+
+			c.HTML(http.StatusBadRequest, "login.html",
+				gin.H{
+					"content": "Invalid email or password",
+					"user":    user,
+				})
 			return
 		}
 
@@ -201,9 +207,16 @@ func SignupPostHandler() gin.HandlerFunc {
 		log.Printf("SignupPostHandler: %v", c.Request.URL.Path)
 
 		if err := c.ShouldBind(&snUser); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			log.Printf("Error struct: %v", err)
+
+			c.HTML(http.StatusBadRequest, "signup.html",
+				gin.H{
+					"content": "Invalid email or password",
+					"user":    user,
+				})
 			return
 		}
+		log.Printf("User: %v", snUser)
 
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(snUser.Password), 8)
 		if err != nil {
@@ -213,7 +226,7 @@ func SignupPostHandler() gin.HandlerFunc {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		collection := database.Client.Database("GODB").Collection("account")
 
-		err = collection.FindOne(ctx, bson.M{"email": snUser.Email}).Decode(&dbUser)
+		err = collection.FindOne(ctx, bson.M{"email": snUser.Email}).Decode(&snUser)
 
 		defer cancel()
 

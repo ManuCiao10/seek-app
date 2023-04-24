@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -10,17 +9,10 @@ import (
 	"github.com/seek/docs/database"
 	"github.com/seek/docs/middleware"
 	routes "github.com/seek/docs/routers"
+	"github.com/seek/docs/utils"
 )
 
 var appConfig = controllers.AppConfig{}
-
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-
-	return fallback
-}
 
 func main() {
 	err := godotenv.Load()
@@ -29,13 +21,14 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	appConfig.AppPort = getEnv("APP_PORT", "9000")
+	appConfig.AppPort = utils.GetEnv("APP_PORT", "9000")
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/static", "./static")
+	router.Static("/assets", "./assets")
 
 	public := router.Group("/")
 	routes.PublicRoutes(public)
@@ -52,7 +45,7 @@ func main() {
 
 }
 
-//add design part CSS
+//TODO diaplay all the error message in the html and the success message (like account created)
 //add login discord and google
 //TODO create 2 distingushed index.html (one for the user not logged in and one for the user logged in)
 
