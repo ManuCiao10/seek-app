@@ -22,6 +22,8 @@ func main() {
 	}
 
 	appConfig.AppPort = utils.GetEnv("APP_PORT", "9000")
+	// appConfig.Csecret = utils.GetEnv("ID_SECRET_GOOGLE", "mysecret")
+	// appConfig.Cid = utils.GetEnv("CLIENT_GOOGLE", "mysecret")
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
@@ -45,9 +47,9 @@ func main() {
 
 }
 
-//TODO diaplay all the error message in the html and the success message (like account created)
-//add login discord and google
-//TODO create 2 distingushed index.html (one for the user not logged in and one for the user logged in)
+//TODO display all the error message in the html and the success message (like account created)
+//TODO login discord and google
+//TODO fixing the redirection html (user not logged in and user logged in)
 
 //#########URLS##########
 //https://www.youtube.com/watch?v=7hOfR6wHMaw

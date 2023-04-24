@@ -35,7 +35,38 @@ func LoginGetHandler() gin.HandlerFunc {
 			return
 		}
 
-		// to fix (check if sessionID is in MongoDB store)
+		log.Printf("Found session ID in cookie %v", sessionID)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		collection := database.Client.Database("GODB").Collection("account")
+
+		log.Printf("Checking if session ID is in database...")
+
+		err = collection.FindOne(ctx, bson.M{"sessionID": sessionID}).Decode(&snUser)
+
+		defer cancel()
+
+		if err != nil {
+			log.Printf("Session ID not found in database: %v", err)
+
+			c.HTML(http.StatusBadRequest, "login.html",
+				gin.H{
+					"content": "Unauthorized error: session ID not found in database",
+				})
+			return
+		}
+
+		log.Printf("Checking if session ID is expired...")
+
+		if time.Now().After(snUser.ExpiresAt) {
+			log.Printf("Session ID is expired")
+
+			c.HTML(http.StatusBadRequest, "login.html",
+				gin.H{
+					"content": "Unauthorized error: session ID is expired",
+				})
+			return
+		}
 
 		log.Printf("User is logged in, redirect to index")
 		log.Printf("SessionID: %v", sessionID)

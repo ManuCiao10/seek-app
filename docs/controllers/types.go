@@ -5,6 +5,8 @@ import "time"
 type AppConfig struct {
 	AppPort   string `json:"app_port"`
 	AppSecret string `json:"app_secret"`
+	Cid       string `json:"cid"`
+	Csecret   string `json:"csecret"`
 }
 
 type UserPostLogin struct {

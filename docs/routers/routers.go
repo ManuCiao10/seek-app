@@ -14,8 +14,8 @@ func PublicRoutes(g *gin.RouterGroup) {
 	g.GET("/signup", controllers.SignupGetHandler())
 	g.POST("/signup", controllers.SignupPostHandler())
 
-	// g.GET("/login/google", auth.HandleGoogleLogin())
-	// g.GET("/login/callback-google", controllers.LoginGetHandler())
+	g.GET("/login/google", controllers.HandleGoogleLogin())
+	// g.GET("/login/google-callback", controllers.LoginGetHandler())
 
 	// g.GET("/login/discord", auth.HandleDiscordLogin())
 	// g.GET("/login/callback-discord", controllers.LoginGetHandler())
