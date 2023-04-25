@@ -3,25 +3,28 @@ package main
 import (
 	"log"
 
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	"github.com/seek/docs/controllers"
 	"github.com/seek/docs/database"
 	"github.com/seek/docs/middleware"
 	routes "github.com/seek/docs/routers"
-	"github.com/seek/docs/utils"
 )
 
 func main() {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	AppPort := utils.GetEnv("APP_PORT", "9000")
-
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+
+	token, err := controllers.RandToken(64)
+	if err != nil {
+		log.Fatal("unable to generate random token: ", err)
+	}
+
+	store := sessions.NewCookieStore([]byte(token))
+	store.Options(sessions.Options{
+		Path:   "/",
+		MaxAge: 86400 * 7,
+	})
 
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/static", "./static")
@@ -36,9 +39,7 @@ func main() {
 
 	database.InitMongoDB()
 
-	log.Fatal(router.Run(":" + AppPort))
-
-	log.Println("Server started on port " + AppPort)
+	log.Fatal(router.Run("127.0.0.1:9000"))
 
 }
 
