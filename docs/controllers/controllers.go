@@ -130,7 +130,7 @@ func LoginPostHandler() gin.HandlerFunc {
 		}
 
 		log.Println("User is valid:")
-		log.Println("Storing session ID in database...")
+		log.Println("Storing sessionID in database...")
 
 		sessionID := uuid.NewString()
 		expiresAt := time.Now().Add(15 * 24 * time.Hour)

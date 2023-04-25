@@ -5,14 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/seek/docs/controllers"
 	"github.com/seek/docs/database"
 	"github.com/seek/docs/middleware"
 	routes "github.com/seek/docs/routers"
 	"github.com/seek/docs/utils"
 )
-
-var appConfig = controllers.AppConfig{}
 
 func main() {
 	err := godotenv.Load()
@@ -21,9 +18,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	appConfig.AppPort = utils.GetEnv("APP_PORT", "9000")
-	// appConfig.Csecret = utils.GetEnv("ID_SECRET_GOOGLE", "mysecret")
-	// appConfig.Cid = utils.GetEnv("CLIENT_GOOGLE", "mysecret")
+	AppPort := utils.GetEnv("APP_PORT", "9000")
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
@@ -41,9 +36,9 @@ func main() {
 
 	database.InitMongoDB()
 
-	log.Fatal(router.Run(":" + appConfig.AppPort))
+	log.Fatal(router.Run(":" + AppPort))
 
-	log.Println("Server started on port " + appConfig.AppPort)
+	log.Println("Server started on port " + AppPort)
 
 }
 
