@@ -27,7 +27,7 @@ func main() {
 	})
 
 	router.Use(sessions.Sessions("session", store))
-	router.LoadHTMLGlob("templates/*")
+	router.LoadHTMLGlob("docs/templates/*")
 	router.Static("/static", "./static")
 	router.Static("/assets", "./assets")
 
