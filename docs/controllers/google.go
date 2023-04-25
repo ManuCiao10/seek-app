@@ -15,18 +15,9 @@ import (
 	"github.com/seek/docs/database"
 	"go.mongodb.org/mongo-driver/bson"
 
-	// "github.com/golang/glog"
-
-	// "github.com/golang/glog"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	// "google.golang.org/api/option"
-)
-
-const (
-	stateKey  = "state"
-	sessionID = "ginoauth_google_session"
 )
 
 var User UserGoogle
