@@ -26,6 +26,7 @@ func main() {
 		MaxAge: 86400 * 7,
 	})
 
+	router.Use(sessions.Sessions("session", store))
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/static", "./static")
 	router.Static("/assets", "./assets")
@@ -39,7 +40,7 @@ func main() {
 
 	database.InitMongoDB()
 
-	log.Fatal(router.Run("127.0.0.1:9000"))
+	log.Fatal(router.Run(":9000"))
 
 }
 

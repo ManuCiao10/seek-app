@@ -7,67 +7,84 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
-	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/seek/docs/database"
-	"github.com/seek/docs/utils"
 	"go.mongodb.org/mongo-driver/bson"
+
+	// "github.com/golang/glog"
+
+	// "github.com/golang/glog"
+	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	// "google.golang.org/api/option"
+)
+
+const (
+	stateKey  = "state"
+	sessionID = "ginoauth_google_session"
 )
 
 var User UserGoogle
+var conf *oauth2.Config
+
+func getLoginURL(state string) string {
+	return conf.AuthCodeURL(state)
+}
+
+func init() {
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	conf = &oauth2.Config{
+		ClientID:     os.Getenv("ID_SECRET_GOOGLE"),
+		ClientSecret: os.Getenv("CLIENT_GOOGLE"),
+		RedirectURL:  "http://localhost:9000/login/google-callback",
+		Scopes: []string{
+			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
+		},
+		Endpoint: google.Endpoint,
+	}
+}
 
 func HandleGoogleLogin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Printf("HandleGoogleLogin: %v", c.Request.URL.Path)
 
-		// conf := &oauth2.Config{
-		// 	ClientID:     utils.GetEnv("ID_SECRET_GOOGLE", ""),
-		// 	ClientSecret: utils.GetEnv("CLIENT_GOOGLE", ""),
-		// 	RedirectURL:  "http://localhost:9000/login/google-callback",
-		// 	Scopes: []string{
-		// 		"https://www.googleapis.com/auth/userinfo.email",
-		// 		"https://www.googleapis.com/auth/userinfo.profile",
-		// 	},
-		// 	Endpoint: google.Endpoint,
-		// }
-
-		// url := conf.AuthCodeURL("state")
-		// c.Redirect(http.StatusTemporaryRedirect, url)
-
 		state, err := RandToken(32)
+
 		if err != nil {
+			log.Printf("Error while generating random data: %v", err)
 			c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{"message": "Error while generating random data."})
 			return
 		}
 		session := sessions.Default(c)
 		session.Set("state", state)
 		err = session.Save()
+
 		if err != nil {
+			log.Printf("Error while saving session: %v", err)
 			c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{"message": "Error while saving session."})
 			return
 		}
+
 		link := getLoginURL(state)
-		c.HTML(http.StatusOK, "auth.tmpl", gin.H{"link": link})
+		c.Redirect(http.StatusTemporaryRedirect, link)
 
 	}
 }
 
 func HandleGoogleCallback() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		conf := &oauth2.Config{
-			ClientID:     utils.GetEnv("ID_SECRET_GOOGLE", ""),
-			ClientSecret: utils.GetEnv("CLIENT_GOOGLE", ""),
-			RedirectURL:  "http://localhost:9000/login/google-callback",
-			Scopes: []string{
-				"https://www.googleapis.com/auth/userinfo.email",
-				"https://www.googleapis.com/auth/userinfo.profile",
-			},
-			Endpoint: google.Endpoint,
-		}
+		log.Printf("HandleGoogleCallback: %v", c.Request.URL.Path)
 
 		session := sessions.Default(c)
 		retrievedState := session.Get("state")
