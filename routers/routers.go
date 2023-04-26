@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/seek/docs/controllers"
+	"github.com/seek/controllers"
 )
 
 // Display all routes
@@ -17,8 +17,8 @@ func PublicRoutes(g *gin.RouterGroup) {
 	g.GET("/login/google", controllers.HandleGoogleLogin())
 	g.GET("/login/google-callback", controllers.HandleGoogleCallback())
 
-	// g.GET("/login/discord", auth.HandleDiscordLogin())
-	// g.GET("/login/callback-discord", controllers.LoginGetHandler())
+	g.GET("/login/discord", controllers.HandleDiscordLogin())
+	g.GET("/login/callback-discord", controllers.HandleDiscordCallback())
 
 	// g.GET("/login/apple", controllers.LoginGetHandler())
 	// g.GET("/login/callback-apple", controllers.LoginGetHandler())

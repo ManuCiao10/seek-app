@@ -13,3 +13,7 @@ func RandToken(l int) (string, error) {
 	}
 	return base64.StdEncoding.EncodeToString(b), nil
 }
+
+func getLoginURL(state string) string {
+	return conf.AuthCodeURL(state)
+}

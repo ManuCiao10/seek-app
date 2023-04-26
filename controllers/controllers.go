@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/seek/docs/database"
+	"github.com/seek/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -173,7 +173,7 @@ func IndexGetHandler() gin.HandlerFunc {
 		if len(sessionID) == 0 {
 			log.Printf("User Token header is missing, redirect to index page with [sign up/log in button] + [sell now button]")
 
-			c.HTML(http.StatusOK, "index.html", gin.H{
+			c.HTML(http.StatusOK, "indexnotlogged.html", gin.H{
 				"content": "",
 			})
 			return
@@ -182,7 +182,7 @@ func IndexGetHandler() gin.HandlerFunc {
 		if err != nil {
 			log.Printf("User is not logged in, redirect to index page with [sign up/log in button] + [sell now button]")
 
-			c.HTML(http.StatusOK, "index.html", gin.H{
+			c.HTML(http.StatusOK, "indexnotlogged.html", gin.H{
 				"content": "",
 			})
 			return
@@ -202,7 +202,7 @@ func IndexGetHandler() gin.HandlerFunc {
 		if err != nil {
 			log.Printf("Session ID not found in database: %v", err)
 
-			c.HTML(http.StatusBadRequest, "index.html",
+			c.HTML(http.StatusBadRequest, "indexnotlogged.html",
 				gin.H{
 					"content": "Unauthorized error: session ID not found in database",
 				})
@@ -214,7 +214,7 @@ func IndexGetHandler() gin.HandlerFunc {
 		if time.Now().After(snUser.ExpiresAt) {
 			log.Printf("Session ID is expired")
 
-			c.HTML(http.StatusBadRequest, "index.html",
+			c.HTML(http.StatusBadRequest, "indexnotlogged.html",
 				gin.H{
 					"content": "Unauthorized error: session ID is expired",
 				})
@@ -224,7 +224,7 @@ func IndexGetHandler() gin.HandlerFunc {
 		log.Printf("User is logged in, redirect to index")
 		log.Printf("Session ID: %v", sessionID)
 
-		c.HTML(http.StatusOK, "index.html", gin.H{
+		c.HTML(http.StatusOK, "indexlogged.html", gin.H{
 			"content": "This is an index page...",
 		})
 

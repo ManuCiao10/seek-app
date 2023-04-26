@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/seek/docs/database"
+	"github.com/seek/database"
 	"go.mongodb.org/mongo-driver/bson"
 
-	"github.com/seek/docs/controllers"
+	"github.com/seek/controllers"
 )
 
 // AuthRequired middleware to check if user is logged in

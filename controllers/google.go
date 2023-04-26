@@ -12,7 +12,7 @@ import (
 
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/seek/docs/database"
+	"github.com/seek/database"
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/joho/godotenv"
@@ -22,10 +22,6 @@ import (
 
 var User UserGoogle
 var conf *oauth2.Config
-
-func getLoginURL(state string) string {
-	return conf.AuthCodeURL(state)
-}
 
 func init() {
 	err := godotenv.Load()
@@ -51,12 +47,11 @@ func HandleGoogleLogin() gin.HandlerFunc {
 		log.Printf("HandleGoogleLogin: %v", c.Request.URL.Path)
 
 		state, err := RandToken(32)
-
 		if err != nil {
-			log.Printf("Error while generating random data: %v", err)
 			c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{"message": "Error while generating random data."})
 			return
 		}
+
 		session := sessions.Default(c)
 		session.Set("state", state)
 		err = session.Save()
@@ -119,8 +114,8 @@ func HandleGoogleCallback() gin.HandlerFunc {
 			_, err = collection.InsertOne(ctx, bson.M{"email": User.Email, "image": User.Picture, "name": User.Name, "given_name": User.GivenName, "family_name": User.FamilyName, "locale": User.Locale})
 
 			if err != nil {
-
 				log.Printf("Error inserting into database: %v", err)
+
 				c.AbortWithError(http.StatusBadRequest, err)
 				return
 			}
@@ -132,6 +127,16 @@ func HandleGoogleCallback() gin.HandlerFunc {
 			log.Printf("Email %s found in database", User.Email)
 			// redirect to home page
 
+		}
+
+		log.Printf("Saving session %s", User.Email)
+
+		session.Set("user-id", User.Email)
+		err = session.Save()
+		if err != nil {
+			log.Println(err)
+			c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error while saving session. Please try again."})
+			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{
