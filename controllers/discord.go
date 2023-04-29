@@ -31,7 +31,7 @@ func init() {
 
 	confgoogle = &oauth2.Config{
 		RedirectURL: "http://localhost:9000/login/discord-callback",
-		// This next 2 lines must be edited before running this.
+
 		ClientID:     os.Getenv("ID_SECRET_DISCORD"),
 		ClientSecret: os.Getenv("CLIENT_DISCORD"),
 		Scopes:       []string{ScopeIdentify},
@@ -60,7 +60,7 @@ func HandleDiscordLogin() gin.HandlerFunc {
 			return
 		}
 
-		link := getLoginURL(state)
+		link := getDiscordLoginURL(state)
 		c.Redirect(http.StatusTemporaryRedirect, link)
 	}
 }
@@ -90,7 +90,7 @@ func HandleDiscordCallback() gin.HandlerFunc {
 		}
 		defer token.Body.Close()
 
-		log.Printf("Token: %v", token)
+		log.Printf("Checking if Email is in database...")
 
 	}
 }
