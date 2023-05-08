@@ -82,6 +82,8 @@ func HandleDiscordCallback() gin.HandlerFunc {
 			return
 		}
 
+		fmt.Printf("Tok: %v", tok)
+
 		client := confgoogle.Client(context.TODO(), tok)
 		token, err := client.Get("https://discord.com/api/users/@me")
 		if err != nil {
@@ -90,7 +92,50 @@ func HandleDiscordCallback() gin.HandlerFunc {
 		}
 		defer token.Body.Close()
 
+		fmt.Printf("Token: %v", token)
+
 		log.Printf("Checking if Email is in database...")
+
+		// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		// collection := database.Client.Database("GODB").Collection("account")
+
+		// err = collection.FindOne(ctx, bson.M{"email": User.Email}).Decode(&User)
+		// defer cancel()
+
+		// if err != nil {
+		// 	log.Printf("Email %s not found in database", User.Email)
+
+		// 	_, err = collection.InsertOne(ctx, bson.M{"email": User.Email, "image": User.Picture, "name": User.Name, "given_name": User.GivenName, "family_name": User.FamilyName, "locale": User.Locale})
+
+		// 	if err != nil {
+		// 		log.Printf("Error inserting into database: %v", err)
+
+		// 		c.AbortWithError(http.StatusBadRequest, err)
+		// 		return
+		// 	}
+
+		// 	log.Printf("Successfully inserted into database")
+		// 	// redirect to home page
+
+		// } else {
+		// 	log.Printf("Email %s found in database", User.Email)
+		// 	// redirect to home page
+
+		// }
+
+		// log.Printf("Saving session %s", User.Email)
+
+		// session.Set("user-id", User.Email)
+		// err = session.Save()
+		// if err != nil {
+		// 	log.Println(err)
+		// 	c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error while saving session. Please try again."})
+		// 	return
+		// }
+
+		// c.JSON(http.StatusOK, gin.H{
+		// 	"message": "[Discord] Successfully logged in",
+		// })
 
 	}
 }
