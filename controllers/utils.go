@@ -15,9 +15,9 @@ func RandToken(l int) (string, error) {
 }
 
 func getLoginURL(state string) string {
-	return conf.AuthCodeURL(state)
+	return confgoogle.AuthCodeURL(state)
 }
 
 func getDiscordLoginURL(state string) string {
-	return confgoogle.AuthCodeURL(state)
+	return confdiscord.AuthCodeURL(state)
 }

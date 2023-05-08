@@ -2,18 +2,24 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/seek/database"
+	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/oauth2"
 )
 
-var confgoogle *oauth2.Config
+var User_discord UserDiscord
+var confdiscord *oauth2.Config
 
 // Endpoint is Discord's OAuth 2.0 endpoint.
 var Endpoint = oauth2.Endpoint{
@@ -29,13 +35,18 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 
-	confgoogle = &oauth2.Config{
+	confdiscord = &oauth2.Config{
 		RedirectURL: "http://localhost:9000/login/discord-callback",
 
 		ClientID:     os.Getenv("ID_SECRET_DISCORD"),
 		ClientSecret: os.Getenv("CLIENT_DISCORD"),
-		Scopes:       []string{ScopeIdentify},
-		Endpoint:     Endpoint,
+		Scopes: []string{
+			"guilds",
+			"identify",
+			"email",
+		},
+
+		Endpoint: Endpoint,
 	}
 
 }
@@ -76,66 +87,80 @@ func HandleDiscordCallback() gin.HandlerFunc {
 			return
 		}
 
-		tok, err := confgoogle.Exchange(context.TODO(), c.Query("code"))
+		token, err := confdiscord.Exchange(context.TODO(), c.Query("code"))
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
-		fmt.Printf("Tok: %v", tok)
-
-		client := confgoogle.Client(context.TODO(), tok)
-		token, err := client.Get("https://discord.com/api/users/@me")
+		client := confdiscord.Client(context.TODO(), token)
+		resp, err := client.Get("https://discord.com/api/users/@me")
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
-		defer token.Body.Close()
+		defer resp.Body.Close()
 
-		fmt.Printf("Token: %v", token)
+		body, err := ioutil.ReadAll(resp.Body)
 
-		log.Printf("Checking if Email is in database...")
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
 
-		// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		// collection := database.Client.Database("GODB").Collection("account")
+			return
+		}
 
-		// err = collection.FindOne(ctx, bson.M{"email": User.Email}).Decode(&User)
-		// defer cancel()
+		// fmt.Printf("Discord Response: %s\n", body) // DEBUG
 
-		// if err != nil {
-		// 	log.Printf("Email %s not found in database", User.Email)
+		err = json.Unmarshal(body, &User_discord)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
 
-		// 	_, err = collection.InsertOne(ctx, bson.M{"email": User.Email, "image": User.Picture, "name": User.Name, "given_name": User.GivenName, "family_name": User.FamilyName, "locale": User.Locale})
+		log.Printf("Checking if email [%s] is in database...", User_discord.Email)
 
-		// 	if err != nil {
-		// 		log.Printf("Error inserting into database: %v", err)
+		avatar_image := fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", User_discord.ID, User_discord.Avatar)
 
-		// 		c.AbortWithError(http.StatusBadRequest, err)
-		// 		return
-		// 	}
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		collection := database.Client.Database("GODB").Collection("account")
 
-		// 	log.Printf("Successfully inserted into database")
-		// 	// redirect to home page
+		err = collection.FindOne(ctx, bson.M{"email": User_discord.Email}).Decode(&User_discord)
+		defer cancel()
 
-		// } else {
-		// 	log.Printf("Email %s found in database", User.Email)
-		// 	// redirect to home page
+		if err != nil {
+			log.Printf("Email %s not found in database", User_discord.Email)
 
-		// }
+			_, err = collection.InsertOne(ctx, bson.M{"email": User_discord.Email, "image": avatar_image, "username_discord": User_discord.Username, "given_name": "to_fix", "family_name": "to_fix", "locale": User_discord.Locale})
 
-		// log.Printf("Saving session %s", User.Email)
+			if err != nil {
+				log.Printf("Error inserting into database: %v", err)
 
-		// session.Set("user-id", User.Email)
-		// err = session.Save()
-		// if err != nil {
-		// 	log.Println(err)
-		// 	c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error while saving session. Please try again."})
-		// 	return
-		// }
+				c.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
 
-		// c.JSON(http.StatusOK, gin.H{
-		// 	"message": "[Discord] Successfully logged in",
-		// })
+			log.Printf("Successfully inserted into database")
+			// redirect to home page
+
+		} else {
+			log.Printf("Email %s found in database", User_discord.Email)
+			// redirect to home page
+
+		}
+
+		log.Printf("Saving session %s", User_discord.Email)
+
+		session.Set("user-id", User_discord.Email)
+		err = session.Save()
+		if err != nil {
+			log.Println(err)
+			c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error while saving session. Please try again."})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "[Discord] Successfully logged in",
+		})
 
 	}
 }

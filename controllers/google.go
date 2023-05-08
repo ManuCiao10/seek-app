@@ -20,8 +20,8 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-var User UserGoogle
-var conf *oauth2.Config
+var User_google UserGoogle
+var confgoogle *oauth2.Config
 
 func init() {
 	err := godotenv.Load()
@@ -30,7 +30,7 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 
-	conf = &oauth2.Config{
+	confgoogle = &oauth2.Config{
 		ClientID:     os.Getenv("ID_SECRET_GOOGLE"),
 		ClientSecret: os.Getenv("CLIENT_GOOGLE"),
 		RedirectURL:  "http://localhost:9000/login/google-callback",
@@ -79,13 +79,13 @@ func HandleGoogleCallback() gin.HandlerFunc {
 			return
 		}
 
-		tok, err := conf.Exchange(context.TODO(), c.Query("code"))
+		tok, err := confgoogle.Exchange(context.TODO(), c.Query("code"))
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
-		client := conf.Client(context.TODO(), tok)
+		client := confgoogle.Client(context.TODO(), tok)
 		email, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
@@ -94,7 +94,7 @@ func HandleGoogleCallback() gin.HandlerFunc {
 		defer email.Body.Close()
 
 		data, _ := io.ReadAll(email.Body)
-		err = json.Unmarshal(data, &User)
+		err = json.Unmarshal(data, &User_google)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
@@ -105,13 +105,13 @@ func HandleGoogleCallback() gin.HandlerFunc {
 
 		log.Printf("Checking if Email is in database...")
 
-		err = collection.FindOne(ctx, bson.M{"email": User.Email}).Decode(&User)
+		err = collection.FindOne(ctx, bson.M{"email": User_google.Email}).Decode(&User_google)
 		defer cancel()
 
 		if err != nil {
-			log.Printf("Email %s not found in database", User.Email)
+			log.Printf("Email %s not found in database", User_google.Email)
 
-			_, err = collection.InsertOne(ctx, bson.M{"email": User.Email, "image": User.Picture, "name": User.Name, "given_name": User.GivenName, "family_name": User.FamilyName, "locale": User.Locale})
+			_, err = collection.InsertOne(ctx, bson.M{"email": User_google.Email, "image": User_google.Picture, "name": User_google.Name, "given_name": User_google.GivenName, "family_name": User_google.FamilyName, "locale": User_google.Locale})
 
 			if err != nil {
 				log.Printf("Error inserting into database: %v", err)
@@ -124,14 +124,14 @@ func HandleGoogleCallback() gin.HandlerFunc {
 			// redirect to home page
 
 		} else {
-			log.Printf("Email %s found in database", User.Email)
+			log.Printf("Email %s found in database", User_google.Email)
 			// redirect to home page
 
 		}
 
-		log.Printf("Saving session %s", User.Email)
+		log.Printf("Saving session %s", User_google.Email)
 
-		session.Set("user-id", User.Email)
+		session.Set("user-id", User_google.Email)
 		err = session.Save()
 		if err != nil {
 			log.Println(err)
@@ -140,7 +140,7 @@ func HandleGoogleCallback() gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Successfully logged in",
+			"message": "[google] Successfully logged in",
 		})
 
 	}
