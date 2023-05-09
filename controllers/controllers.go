@@ -22,43 +22,25 @@ func LoginGetHandler() gin.HandlerFunc {
 		if err != nil {
 			log.Printf("User is not logged in, redirect to login page")
 
-			c.HTML(http.StatusOK, "login.html", gin.H{
-				"content": "",
-			})
+			c.HTML(http.StatusOK, "login.html", gin.H{})
 			return
 		}
 
 		log.Printf("Found session ID in cookie %v", sessionID)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		collection := database.Client.Database("GODB").Collection("account")
-
-		log.Printf("Checking if session ID is in database...")
-
-		err = collection.FindOne(ctx, bson.M{"sessionID": sessionID}).Decode(&snUser)
-
-		defer cancel()
-
+		err = database.CheckSession(c, sessionID)
 		if err != nil {
-			log.Printf("Session ID not found in database: %v", err)
+			c.HTML(http.StatusOK, "login.html", gin.H{})
 
-			c.HTML(http.StatusBadRequest, "login.html",
-				gin.H{
-					"content": "Unauthorized error: session ID not found in database",
-				})
 			return
 		}
 
-		log.Printf("Checking if session ID is expired...")
-
-		if time.Now().After(snUser.ExpiresAt) {
-			log.Printf("Session ID is expired")
-
-			c.HTML(http.StatusBadRequest, "login.html",
-				gin.H{
-					"content": "Unauthorized error: session ID is expired",
-				})
-			return
+		err = database.CheckSessionExpired(c)
+		if err != nil {
+			if err != nil {
+				c.HTML(http.StatusOK, "login.html", gin.H{})
+				return
+			}
 		}
 
 		log.Printf("User is logged in, redirect to index")
@@ -122,23 +104,14 @@ func LoginPostHandler() gin.HandlerFunc {
 			return
 		}
 
-		log.Println("User is valid:")
-		log.Println("Storing sessionID in database...")
-
 		sessionID := uuid.NewString()
 		expiresAt := time.Now().Add(15 * 24 * time.Hour)
 
-		_, err = collection.UpdateOne(
-			ctx, bson.M{"email": user.Email},
-			bson.M{"$set": bson.M{"sessionID": sessionID, "expiresAt": expiresAt}},
-		)
-
+		err = database.StoreSession(c, sessionID, expiresAt)
 		if err != nil {
-			log.Printf("Error updating session ID: %v", err)
-
 			c.HTML(http.StatusBadRequest, "login.html",
 				gin.H{
-					"content": "Error updating session ID",
+					"content": "Error storing session ID",
 					"user":    user,
 				})
 			return
@@ -153,7 +126,6 @@ func LoginPostHandler() gin.HandlerFunc {
 }
 
 /*
-display the index.html page
 determine if the user is logged in or not by searching the sessionID in the cookie and the database MongoDB
 user logged in ==> display index.html with [sign up/log in button] + [sell now button]
 user not logged in ==> display index.html with [profile picture] + [sell now button] + [messages]
@@ -167,7 +139,7 @@ func IndexGetHandler() gin.HandlerFunc {
 		if len(sessionID) == 0 {
 			log.Printf("User Token header is missing, user not logged in")
 
-			c.HTML(http.StatusOK, "indexnotlogged.html", gin.H{
+			c.HTML(http.StatusOK, "not_logged_in.html", gin.H{
 				"content": "",
 			})
 			return
@@ -176,19 +148,28 @@ func IndexGetHandler() gin.HandlerFunc {
 		if err != nil {
 			log.Printf("Error IndexGetHandler gettin sessionID: user is not logged in")
 
-			c.HTML(http.StatusOK, "indexnotlogged.html", gin.H{
+			c.HTML(http.StatusOK, "not_logged_in.html", gin.H{
 				"content": "",
 			})
 			return
 		}
 
 		log.Printf("Found session ID in cookie %v", sessionID)
+		err = database.CheckSession(c, sessionID)
 
-		database.CheckSession(c, sessionID)
-		database.CheckSessionExpired(c)
+		if err != nil {
+			c.HTML(http.StatusOK, "not_logged_in.html", gin.H{})
+			return
+		}
+
+		err = database.CheckSessionExpired(c)
+
+		if err != nil {
+			c.HTML(http.StatusOK, "not_logged_in.html", gin.H{})
+			return
+		}
 
 		log.Printf("User logged in, session ID: %v", sessionID)
-
 		c.Redirect(http.StatusFound, "/")
 	}
 }

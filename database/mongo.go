@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -38,15 +37,5 @@ func InitMongoDB() {
 	}
 
 	log.Println("Ping to MongoDB!")
-}
 
-func DeleteUser(id string) error {
-	collection := Client.Database("GODB").Collection("account")
-	_, err := collection.DeleteOne(context.Background(), bson.M{"_id": id})
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
