@@ -13,9 +13,6 @@ var confgoogle *oauth2.Config
 var User_discord UserDiscord
 var confdiscord *oauth2.Config
 
-// var User_apple UserApple
-// var confapple *oauth2.Config
-
 // Endpoint is Discord's OAuth 2.0 endpoint.
 var Endpoint = oauth2.Endpoint{
 	AuthURL:   "https://discord.com/api/oauth2/authorize",
@@ -46,7 +43,3 @@ func getLoginURL(state string) string {
 func getDiscordLoginURL(state string) string {
 	return confdiscord.AuthCodeURL(state)
 }
-
-// func getAppleLoginURL(state string) string {
-// 	return confapple.AuthCodeURL(state)
-// }

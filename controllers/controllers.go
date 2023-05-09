@@ -152,11 +152,12 @@ func LoginPostHandler() gin.HandlerFunc {
 	}
 }
 
-// display the index.html page
-// determine if the user is logged in or not by searching the sessionID in the cookie and the database MongoDB
-// user logged in ==> display index.html with [sign up/log in button] + [sell now button]
-// user not logged in ==> display index.html with [profile picture] + [sell now button] + [messages]
-
+/*
+display the index.html page
+determine if the user is logged in or not by searching the sessionID in the cookie and the database MongoDB
+user logged in ==> display index.html with [sign up/log in button] + [sell now button]
+user not logged in ==> display index.html with [profile picture] + [sell now button] + [messages]
+*/
 func IndexGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Printf("IndexGetHandler: %v", c.Request.URL.Path)
@@ -164,7 +165,7 @@ func IndexGetHandler() gin.HandlerFunc {
 		sessionID, err := c.Cookie("sessionID")
 
 		if len(sessionID) == 0 {
-			log.Printf("User Token header is missing, redirect to index page with [sign up/log in button] + [sell now button]")
+			log.Printf("User Token header is missing, user not logged in")
 
 			c.HTML(http.StatusOK, "indexnotlogged.html", gin.H{
 				"content": "",
@@ -173,7 +174,7 @@ func IndexGetHandler() gin.HandlerFunc {
 		}
 
 		if err != nil {
-			log.Printf("User is not logged in, redirect to index page with [sign up/log in button] + [sell now button]")
+			log.Printf("Error IndexGetHandler gettin sessionID: user is not logged in")
 
 			c.HTML(http.StatusOK, "indexnotlogged.html", gin.H{
 				"content": "",
@@ -183,44 +184,12 @@ func IndexGetHandler() gin.HandlerFunc {
 
 		log.Printf("Found session ID in cookie %v", sessionID)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		collection := database.Client.Database("GODB").Collection("account")
+		database.CheckSession(c, sessionID)
+		database.CheckSessionExpired(c)
 
-		log.Printf("Checking if session ID is in database...")
+		log.Printf("User logged in, session ID: %v", sessionID)
 
-		err = collection.FindOne(ctx, bson.M{"sessionID": sessionID}).Decode(&snUser)
-
-		defer cancel()
-
-		if err != nil {
-			log.Printf("Session ID not found in database: %v", err)
-
-			c.HTML(http.StatusBadRequest, "indexnotlogged.html",
-				gin.H{
-					"content": "Unauthorized error: session ID not found in database",
-				})
-			return
-		}
-
-		log.Printf("Checking if session ID is expired...")
-
-		if time.Now().After(snUser.ExpiresAt) {
-			log.Printf("Session ID is expired")
-
-			c.HTML(http.StatusBadRequest, "indexnotlogged.html",
-				gin.H{
-					"content": "Unauthorized error: session ID is expired",
-				})
-			return
-		}
-
-		log.Printf("User is logged in, redirect to index")
-		log.Printf("Session ID: %v", sessionID)
-
-		c.HTML(http.StatusOK, "indexlogged.html", gin.H{
-			"content": "This is an index page...",
-		})
-
+		c.Redirect(http.StatusFound, "/")
 	}
 }
 

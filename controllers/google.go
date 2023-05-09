@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/seek/database"
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -136,9 +137,33 @@ func HandleGoogleCallback() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"message": "[google] Successfully logged in",
-		})
+		log.Println("Storing sessionID in database...")
+
+		sessionID := uuid.NewString()
+		expiresAt := time.Now().Add(15 * 24 * time.Hour)
+
+		_, err = collection.UpdateOne(
+			ctx, bson.M{"email": User_google.Email},
+			bson.M{"$set": bson.M{"sessionID": sessionID, "expiresAt": expiresAt}},
+		)
+
+		if err != nil {
+			log.Printf("Error updating session ID: %v", err)
+
+			c.HTML(http.StatusBadRequest, "login.html",
+				gin.H{
+					"content": "Error updating session ID",
+					"user":    user,
+				})
+			return
+		}
+
+		c.SetCookie("sessionID", sessionID, int(expiresAt.Unix()), "/", "", false, true)
+
+		log.Printf("Session ID: %v %v", sessionID, expiresAt)
+
+		//redirect to home page to finish login
+		c.Redirect(http.StatusFound, "/")
 
 	}
 }

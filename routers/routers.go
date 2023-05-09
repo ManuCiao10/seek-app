@@ -29,7 +29,7 @@ func PublicRoutes(g *gin.RouterGroup) {
 func PrivateRoutes(g *gin.RouterGroup) {
 
 	// g.GET("/dashboard", controllers.DashboardGetHandler())
-	// g.GET("/logout", controllers.LogoutGetHandler())
+	g.GET("/logout", controllers.LogoutGetHandler())
 	// g.GET("/inbox", controllers.InboxGetHandler())
 	// g.GET("/inbox/:id", controllers.InboxGetHandler())
 

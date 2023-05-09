@@ -24,9 +24,13 @@ func AuthRequired(c *gin.Context) {
 	if len(sessionID) == 0 {
 		log.Printf("User Token header is missing, redirect to index page with [sign up/log in button] + [sell now button]")
 
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"content": "",
-		})
+		// c.HTML(http.StatusOK, "index.html", gin.H{
+		// 	"content": "",
+		// })
+
+		//redirect to login page
+		c.Redirect(http.StatusFound, "/login")
+
 		return
 	}
 
@@ -36,6 +40,7 @@ func AuthRequired(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"content": "",
 		})
+
 		return
 	}
 

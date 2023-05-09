@@ -2,6 +2,7 @@ package controllers
 
 import "time"
 
+
 type UserPostLogin struct {
 	ID       string `bson:"_id"` // bson tag is used for MongoDB
 	Email    string `form:"email" json:"email" binding:"required"`
@@ -9,12 +10,12 @@ type UserPostLogin struct {
 }
 
 type UserPostSignup struct {
-	ID        string    `bson:"_id"` // bson tag is used for MongoDB
+	ID        string    `bson:"_id"` 
 	Fullname  string    `form:"fullname" json:"fullname" binding:"required"`
 	Username  string    `form:"username" json:"username" binding:"required"`
 	Email     string    `form:"email" json:"email" binding:"required"`
 	Password  string    `form:"password" json:"password" binding:"required"`
-	ExpiresAt time.Time `json:"expiresAt"` // expire time for the token
+	ExpiresAt time.Time `json:"expiresAt"`
 }
 
 type UserGoogle struct {
