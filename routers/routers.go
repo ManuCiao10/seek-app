@@ -20,8 +20,8 @@ func PublicRoutes(g *gin.RouterGroup) {
 	g.GET("/login/discord", controllers.HandleDiscordLogin())
 	g.GET("/login/discord-callback", controllers.HandleDiscordCallback())
 
-	// g.GET("/login/apple", controllers.LoginGetHandler())
-	// g.GET("/login/callback-apple", controllers.LoginGetHandler())
+	// g.GET("/login/apple", controllers.HandleAppleLogin())
+	// g.GET("/login/callback-apple", controllers.HandleAppleCallback())
 
 }
 

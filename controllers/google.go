@@ -20,9 +20,6 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-var User_google UserGoogle
-var confgoogle *oauth2.Config
-
 func init() {
 	err := godotenv.Load()
 

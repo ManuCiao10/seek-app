@@ -13,13 +13,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var (
-	user     UserPostLogin  // user from login form
-	dbUser   UserPostLogin  // user from database
-	snUser   UserPostSignup // user from signup form
-	AuthUser UserPostSignup // user from database AuthRequired middleware
-)
-
 // return login.html page if user not logged in
 func LoginGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {

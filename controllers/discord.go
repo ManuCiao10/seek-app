@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
+
+	// "io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -17,16 +19,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/oauth2"
 )
-
-var User_discord UserDiscord
-var confdiscord *oauth2.Config
-
-// Endpoint is Discord's OAuth 2.0 endpoint.
-var Endpoint = oauth2.Endpoint{
-	AuthURL:   "https://discord.com/api/oauth2/authorize",
-	TokenURL:  "https://discord.com/api/oauth2/token",
-	AuthStyle: oauth2.AuthStyleInParams,
-}
 
 func init() {
 	err := godotenv.Load()
@@ -101,7 +93,7 @@ func HandleDiscordCallback() gin.HandlerFunc {
 		}
 		defer resp.Body.Close()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)

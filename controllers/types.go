@@ -48,6 +48,18 @@ type UserDiscord struct {
 	Verified         bool        `json:"verified"`
 }
 
+type UserApple struct {
+	ID            string      `json:"id"`
+	Username      string      `json:"username"`
+	GlobalName    interface{} `json:"global_name"`
+	DisplayName   interface{} `json:"display_name"`
+	Avatar        string      `json:"avatar"`
+	Discriminator string      `json:"discriminator"`
+	PublicFlags   int         `json:"public_flags"`
+	Flags         int         `json:"flags"`
+	Banner        interface{} `json:"banner"`
+}
+
 // All Discord scope constants that can be used.
 const (
 	ScopeIdentify                   = "identify"
