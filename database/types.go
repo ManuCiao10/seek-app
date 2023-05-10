@@ -1,11 +1,16 @@
 package database
 
-import "time"
+import (
+	"time"
 
-var user UserDatabase
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
+var UserDB UserDatabase
+var Client *mongo.Client
 
 const (
-	dbName     = "GODB"
+	dbName         = "GODB"
 	collectionName = "account"
 )
 

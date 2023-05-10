@@ -1,86 +1,51 @@
 package middleware
 
 import (
-	"context"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/seek/database"
-	"go.mongodb.org/mongo-driver/bson"
-
-	"github.com/seek/controllers"
 )
 
-// AuthRequired middleware to check if user is logged in
-// if user is logged in => redirect to index page
-// if user is not logged in => redirect to login page
+// if user is not logged in: redirect to login page
 func AuthRequired(c *gin.Context) {
 	log.Printf("AuthRequired: %v", c.Request.URL.Path)
 
 	sessionID, err := c.Cookie("sessionID")
 
 	if len(sessionID) == 0 {
-		log.Printf("User Token header is missing, redirect to index page with [sign up/log in button] + [sell now button]")
+		log.Printf("User Token header is missing, redirect to login page")
 
-		// c.HTML(http.StatusOK, "index.html", gin.H{
-		// 	"content": "",
-		// })
-
-		//redirect to login page
 		c.Redirect(http.StatusFound, "/login")
-
 		return
 	}
 
 	if err != nil {
-		log.Printf("User is not logged in, redirect to index page with [sign up/log in button] + [sell now button]")
+		log.Printf("Error getting session ID from cookie: %v", err)
 
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"content": "",
-		})
-
+		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
 	log.Printf("Found session ID in cookie %v", sessionID)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := database.Client.Database("GODB").Collection("account")
-
-	log.Printf("Checking if session ID is in database...")
-
-	err = collection.FindOne(ctx, bson.M{"sessionID": sessionID}).Decode(&controllers.AuthUser)
-
-	defer cancel()
-
+	err = database.CheckSession(c, sessionID)
 	if err != nil {
 		log.Printf("Session ID not found in database: %v", err)
 
-		c.HTML(http.StatusBadRequest, "index.html",
-			gin.H{
-				"content": "Unauthorized error: session ID not found in database",
-			})
+		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
-	log.Printf("Checking if session ID is expired...")
+	err = database.CheckSessionExpired(c)
+	if err != nil {
+		log.Printf("Session ID is expired: %v", err)
 
-	if time.Now().After(controllers.AuthUser.ExpiresAt) {
-		log.Printf("Session ID is expired")
-
-		c.HTML(http.StatusBadRequest, "index.html",
-			gin.H{
-				"content": "Unauthorized error: session ID is expired",
-			})
+		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
-	log.Printf("User is logged in, redirect to index")
-
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"content": "",
-	})
-
+	log.Printf("User is logged in")
+	c.Next()
 }

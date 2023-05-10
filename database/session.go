@@ -19,7 +19,7 @@ func StoreSession(c *gin.Context, sessionID string, expiresAt time.Time) error {
 	collection := Client.Database("GODB").Collection("account")
 
 	_, err := collection.UpdateOne(
-		ctx, bson.M{"email": user.Email},
+		ctx, bson.M{"email": UserDB.Email},
 		bson.M{"$set": bson.M{"sessionID": sessionID, "expiresAt": expiresAt}},
 	)
 
@@ -42,7 +42,7 @@ func CheckSession(c *gin.Context, sessionID string) error {
 
 	collection := Client.Database(dbName).Collection(collectionName)
 
-	err := collection.FindOne(ctx, bson.M{"sessionID": sessionID}).Decode(&user)
+	err := collection.FindOne(ctx, bson.M{"sessionID": sessionID}).Decode(&UserDB)
 
 	if err != nil {
 		log.Printf("Session ID not found in database: %v", err)
@@ -55,11 +55,33 @@ func CheckSession(c *gin.Context, sessionID string) error {
 func CheckSessionExpired(c *gin.Context) error {
 	log.Printf("Checking if session ID is expired...")
 
-	if time.Now().After(user.ExpiresAt) {
+	if time.Now().After(UserDB.ExpiresAt) {
 		log.Printf("Session ID is expired")
 		return fmt.Errorf("session ID is expired")
 	}
 
 	return nil
 
+}
+
+func DeleteSession(c *gin.Context) error {
+	log.Printf("Deleting session ID from database...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := Client.Database(dbName).Collection(collectionName)
+
+	_, err := collection.UpdateOne(
+		ctx, bson.M{"email": UserDB.Email},
+		bson.M{"$set": bson.M{"sessionID": "", "expiresAt": time.Now()}},
+	)
+
+	if err != nil {
+		log.Printf("Error deleting session ID: %v", err)
+		return fmt.Errorf("error deleting session ID")
+	}
+
+	log.Printf("Session ID deleted successfully")
+	return nil
 }

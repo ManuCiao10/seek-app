@@ -5,12 +5,12 @@ import (
 	"github.com/seek/controllers"
 )
 
-// Display all routes
 func PublicRoutes(g *gin.RouterGroup) {
-
 	g.GET("/", controllers.IndexGetHandler())
+
 	g.GET("/login", controllers.LoginGetHandler())
 	g.POST("/login", controllers.LoginPostHandler())
+
 	g.GET("/signup", controllers.SignupGetHandler())
 	g.POST("/signup", controllers.SignupPostHandler())
 
@@ -19,23 +19,29 @@ func PublicRoutes(g *gin.RouterGroup) {
 
 	g.GET("/login/discord", controllers.HandleDiscordLogin())
 	g.GET("/login/discord-callback", controllers.HandleDiscordCallback())
-
-	// g.GET("/login/apple", controllers.HandleAppleLogin())
-	// g.GET("/login/callback-apple", controllers.HandleAppleCallback())
-
 }
 
-// Diplay only if user is logged in (middleware)
 func PrivateRoutes(g *gin.RouterGroup) {
 
-	// g.GET("/dashboard", controllers.DashboardGetHandler())
 	g.GET("/logout", controllers.LogoutGetHandler())
+	// g.GET("/dashboard", controllers.DashboardGetHandler())
 	// g.GET("/inbox", controllers.InboxGetHandler())
 	// g.GET("/inbox/:id", controllers.InboxGetHandler())
 
 	// POST /products – to add a new product
 	// PUT /products/:productId – to update a product
 	// DELETE /products/:productId – to delete a product
+
+	// g.GET("/settings", controllers.SettingsGetHandler())
+
+	// g.GET("/settings/profile", controllers.SettingsProfileGetHandler())
+	// g.POST("/settings/profile", controllers.SettingsProfilePostHandler())
+
+	// g.GET("/settings/account", controllers.SettingsAccountGetHandler())
+	// g.POST("/settings/account", controllers.SettingsAccountPostHandler())
+
+	// g.GET("/settings/security", controllers.SettingsSecurityGetHandler())
+	// g.POST("/settings/security", controllers.SettingsSecurityPostHandler())
 
 	// g.GET("/logout", controllers.LogoutGetHandler())
 
