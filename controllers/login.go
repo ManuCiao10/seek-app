@@ -87,7 +87,7 @@ func LoginPostHandler() gin.HandlerFunc {
 		sessionID := uuid.NewString()
 		expiresAt := time.Now().Add(15 * 24 * time.Hour)
 
-		err = database.StoreSession(c, sessionID, expiresAt)
+		err = database.StoreSession(c, sessionID, expiresAt, email)
 		if err != nil {
 			c.HTML(http.StatusBadRequest, "login.html", gin.H{})
 			return

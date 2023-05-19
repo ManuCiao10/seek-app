@@ -43,30 +43,3 @@ func main() {
 
 	log.Fatal(router.Run(":9000"))
 }
-
-/*
-error message in the html template
-fix all the struct variables
-improve session management/cookies/redirection
-gathering page statistics
-
-============================================================
-
-https://www.youtube.com/watch?v=7hOfR6wHMaw
-https://github.com/Skarlso/google-oauth-go-sample/blob/master/database/mongo.go
-https://skarlso.github.io/2016/06/12/google-signin-with-go/
-https://skarlso.github.io/2016/11/02/google-signin-with-go-part2/
-https://github.com/zalando/gin-oauth2/blob/47b9fc0cb1395111098062ff8d991174fa40f6b3/google/google.go#L99
-
-N.B: confront the sessionID with the session stored in the database
-add sessionID while logging in with google and discord
-
-Session management design:
-	Global session manager.
-	Keep session id unique.
-	Have one session for every user.
-	Session storage in memory, file or database.
-	Deal with expired sessions.
-	Prevent session hijacking.
-
-*/

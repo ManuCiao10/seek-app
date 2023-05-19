@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func StoreSession(c *gin.Context, sessionID string, expiresAt time.Time) error {
+func StoreSession(c *gin.Context, sessionID string, expiresAt time.Time, email string) error {
 	log.Println("Storing sessionID in database...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -19,7 +19,7 @@ func StoreSession(c *gin.Context, sessionID string, expiresAt time.Time) error {
 	collection := Client.Database("GODB").Collection("account")
 
 	_, err := collection.UpdateOne(
-		ctx, bson.M{"email": UserDB.Email},
+		ctx, bson.M{"email": email},
 		bson.M{"$set": bson.M{"sessionID": sessionID, "expiresAt": expiresAt}},
 	)
 
@@ -72,8 +72,13 @@ func DeleteSession(c *gin.Context) error {
 
 	collection := Client.Database(dbName).Collection(collectionName)
 
-	_, err := collection.UpdateOne(
-		ctx, bson.M{"email": UserDB.Email},
+	sessionID, err := c.Cookie("sessionID")
+	if err != nil {
+		return fmt.Errorf("error getting session ID cookie")
+	}
+
+	_, err = collection.UpdateOne(
+		ctx, bson.M{"sessionID": sessionID},
 		bson.M{"$set": bson.M{"sessionID": "", "expiresAt": time.Now()}},
 	)
 
@@ -82,6 +87,8 @@ func DeleteSession(c *gin.Context) error {
 		return fmt.Errorf("error deleting session ID")
 	}
 
+	c.SetCookie("sessionID", "", -1, "/", "", false, true)
+	
 	log.Printf("Session ID deleted successfully")
 	return nil
 }

@@ -19,6 +19,7 @@ func PublicRoutes(g *gin.RouterGroup) {
 
 	g.GET("/login/discord", controllers.HandleDiscordLogin())
 	g.GET("/login/discord-callback", controllers.HandleDiscordCallback())
+
 }
 
 func PrivateRoutes(g *gin.RouterGroup) {
@@ -44,5 +45,9 @@ func PrivateRoutes(g *gin.RouterGroup) {
 	// g.POST("/settings/security", controllers.SettingsSecurityPostHandler())
 
 	// g.GET("/logout", controllers.LogoutGetHandler())
+
+	// g.GET("/api/v2/catalogs", controllers.CatalogsGetHandler())
+	// g.GET("/api/v2/catalogs/:id", controllers.CatalogGetHandler())
+	// g.GET("/api/v2/users/:id", controllers.UserGetHandler())
 
 }

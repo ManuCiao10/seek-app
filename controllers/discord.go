@@ -14,6 +14,7 @@ import (
 
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/seek/database"
 	"go.mongodb.org/mongo-driver/bson"
@@ -132,11 +133,9 @@ func HandleDiscordCallback() gin.HandlerFunc {
 			}
 
 			log.Printf("Successfully inserted into database")
-			// redirect to home page
 
 		} else {
 			log.Printf("Email %s found in database", User_discord.Email)
-			// redirect to home page
 
 		}
 
@@ -150,9 +149,21 @@ func HandleDiscordCallback() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"message": "[Discord] Successfully logged in",
-		})
+		log.Println("Storing sessionID in database...")
+
+		sessionID := uuid.NewString()
+		expiresAt := time.Now().Add(15 * 24 * time.Hour)
+
+		err = database.StoreSession(c, sessionID, expiresAt, User_discord.Email)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, "login.html", gin.H{})
+			return
+		}
+
+		c.SetCookie("sessionID", sessionID, int(expiresAt.Unix()), "/", "", false, true)
+
+		log.Printf("Session ID: %v %v", sessionID, expiresAt)
+		c.Redirect(http.StatusFound, "/")
 
 	}
 }

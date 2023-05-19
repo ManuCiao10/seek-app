@@ -1,0 +1,75 @@
+{
+    "catalogs": [
+        {
+            "id": 1904,
+            "title": "Women",
+            "code": "WOMEN_ROOT",
+            "material_group_id": null,
+            "material_group_ids": [],
+            "size_group_id": 4,
+            "size_group_ids": [
+                4,
+                53,
+                60,
+                52,
+                30,
+                62,
+                64,
+                61,
+                72,
+                7
+            ],
+            "shippable": true,
+            "author_field_visibility": 0,
+            "brand_field_visibility": 1,
+            "book_title_field_visibility": 0,
+            "color_field_visibility": 1,
+            "isbn_field_visibility": 0,
+            "size_field_visibility": 1,
+            "material_field_visibility": 0,
+            "video_game_rating_field_visibility": 0,
+            "measurements_field_visibility": false,
+            "condition_field_visible": true,
+            "restricted_to_status_id": null,
+            "landing": null,
+            "allow_browsing_subcategories": true,
+            "package_size_ids": [],
+            "order": 0,
+            "item_count": 186187322,
+            "photo": {
+                "url": "https://images1.vinted.net/t/02_0150a_ovmUetcXsTfpKbCPNDULJju2/1655720952.png?s=8e295812d7741d32e01fbc677451fa29b0eaed83",
+                "thumbnails": [
+                    {
+                        "type": "thumb24",
+                        "height": 24,
+                        "width": 24,
+                        "url": "https://images1.vinted.net/t/02_0150a_ovmUetcXsTfpKbCPNDULJju2/24x24/1655720952.png?s=1808d82e320447cdad65784a0852382c502334cf"
+                    },
+                    {
+                        "type": "thumb48",
+                        "height": 48,
+                        "width": 48,
+                        "url": "https://images1.vinted.net/t/02_0150a_ovmUetcXsTfpKbCPNDULJju2/48x48/1655720952.png?s=0bf13c6ffe6d32417d23277b82af18e4a254f98e"
+                    },
+                    {
+                        "type": "thumb70",
+                        "height": 70,
+                        "width": 70,
+                        "url": "https://images1.vinted.net/t/02_0150a_ovmUetcXsTfpKbCPNDULJju2/70x70/1655720952.png?s=f37bf7509be3023c74a704de6af0ce0c0b7ad68b"
+                    },
+                    {
+                        "type": "thumb150",
+                        "height": 150,
+                        "width": 150,
+                        "url": "https://images1.vinted.net/t/02_0150a_ovmUetcXsTfpKbCPNDULJju2/150x150/1655720952.png?s=4d9d73e39ecd455dae49140f29309876a9ba0278"
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+    
+            
+                    
+                

@@ -23,11 +23,7 @@ var Endpoint = oauth2.Endpoint{
 	AuthStyle: oauth2.AuthStyleInParams,
 }
 
-var (
-	user UserPost // user from login form
-	// snUser   UserPostSignup // user from signup form
-	// AuthUser UserPostSignup // user from database AuthRequired middleware
-)
+var user UserPost // user from login form
 
 // RandToken generates a random @l length token.
 func RandToken(l int) (string, error) {

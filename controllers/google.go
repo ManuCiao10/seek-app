@@ -142,27 +142,15 @@ func HandleGoogleCallback() gin.HandlerFunc {
 		sessionID := uuid.NewString()
 		expiresAt := time.Now().Add(15 * 24 * time.Hour)
 
-		_, err = collection.UpdateOne(
-			ctx, bson.M{"email": User_google.Email},
-			bson.M{"$set": bson.M{"sessionID": sessionID, "expiresAt": expiresAt}},
-		)
-
+		err = database.StoreSession(c, sessionID, expiresAt, User_google.Email)
 		if err != nil {
-			log.Printf("Error updating session ID: %v", err)
-
-			c.HTML(http.StatusBadRequest, "login.html",
-				gin.H{
-					"content": "Error updating session ID",
-					"user":    user,
-				})
+			c.HTML(http.StatusBadRequest, "login.html", gin.H{})
 			return
 		}
 
 		c.SetCookie("sessionID", sessionID, int(expiresAt.Unix()), "/", "", false, true)
 
 		log.Printf("Session ID: %v %v", sessionID, expiresAt)
-
-		//redirect to home page to finish login
 		c.Redirect(http.StatusFound, "/")
 
 	}

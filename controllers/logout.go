@@ -17,8 +17,6 @@ func LogoutGetHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Printf("LogoutGetHandler: %v", c.Request.URL.Path)
 
-		c.SetCookie("sessionID", "", -1, "/", "", false, true)
-
 		err := database.DeleteSession(c)
 		if err != nil {
 			log.Printf("LogoutGetHandler: %v", err)
